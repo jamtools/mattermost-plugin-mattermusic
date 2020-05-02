@@ -11,6 +11,10 @@ module.exports = {
         ],
         extensions: ['*', '.js', '.jsx', '.ts', '.tsx'],
     },
+    devtool: 'source-map',
+    watchOptions: {
+        poll: true,
+    },
     module: {
         rules: [
             {

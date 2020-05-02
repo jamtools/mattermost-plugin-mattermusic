@@ -74,12 +74,21 @@ ifneq ($(HAS_WEBAPP),)
 	cd webapp && $(NPM) run build;
 endif
 
-## Builds the webapp in debug mode, if it exists.
+# wd is an easier-to-type alias for webapp-debug
+.PHONY: wd
+wd: webapp-debug
+
+# webapp-debug builds and deploys the plugin's webapp in watch mode with source-maps.
+# Webpack will run make-reset after detecting and compiling changes.
 .PHONY: webapp-debug
-webapp-debug: webapp/.npminstall
+webapp-debug:
 ifneq ($(HAS_WEBAPP),)
-	cd webapp && \
-	$(NPM) run debug;
+# link the webapp directory
+	rm -rf ../../mattermost/mattermost-server/plugins/$(PLUGIN_ID)/webapp
+	mkdir -p ../../mattermost/mattermost-server/plugins/$(PLUGIN_ID)/webapp
+	ln -nfs $(PWD)/webapp/dist ../../mattermost/mattermost-server/plugins/$(PLUGIN_ID)/webapp/dist
+# start an npm watch
+	cd webapp && $(NPM) run run
 endif
 
 ## Generates a tar bundle of the plugin for install.
