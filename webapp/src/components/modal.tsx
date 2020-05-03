@@ -51,7 +51,6 @@ function ModalImpl<T>(props: Props<T> & DefaultProps & OwnProps<T>) {
     const ref = React.useRef(null);
 
     if (!open) {
-        console.log('Im closed')
         return false;
     }
 
@@ -70,27 +69,19 @@ function ModalImpl<T>(props: Props<T> & DefaultProps & OwnProps<T>) {
             btnClass='btn btn-primary'
             defaultMessage='Close'
             onClick={handleClose}
-        />
+        >
+            {'Close'}
+        </FormButton>
     );
 
     let footer = (
         <React.Fragment>
-            <FormButton
-                type='button'
-                btnClass='btn-link'
-                defaultMessage='Cancel'
-                onClick={handleClose}
-            />
-            <Footer {...props}/>
+            {footerClose}
+            {Footer && <Footer {...props}/>}
         </React.Fragment>
     );
 
     const style = getStyle(theme);
-    const component = (
-        <div>
-            {'Were in the money'}
-        </div>
-    );
 
     return (
         <Modal
@@ -103,7 +94,7 @@ function ModalImpl<T>(props: Props<T> & DefaultProps & OwnProps<T>) {
         >
             <Modal.Header closeButton={true}>
                 <Modal.Title>
-                    {'Music my boy'}
+                    {props.header}
                 </Modal.Title>
             </Modal.Header>
             <form

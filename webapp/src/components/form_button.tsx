@@ -40,7 +40,8 @@ export default class FormButton extends PureComponent<any> {
                 </span>
             );
         } else {
-            contents = defaultMessage;
+            contents = props.children;
+            // contents = defaultMessage;
         }
 
         let className = 'save-button btn ' + btnClass;

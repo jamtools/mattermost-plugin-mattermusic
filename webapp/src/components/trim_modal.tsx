@@ -8,6 +8,7 @@ type DefaultProps = {theme: Theme}
 
 import FormButton from './form_button';
 import createModal, {ConnectConfig} from './modal';
+import {Project} from 'src/model';
 
 const config: ConnectConfig<TrimModalData> = {
     state: ({'plugins-music-sniper': {trimModal}}) => ({
@@ -24,15 +25,22 @@ enum Bounds {
     End,
 };
 
+type TrimPayload = {
+    start: number;
+    end: number;
+    file: File;
+}
+
 const FancyModal = createModal<TrimModalData>(config);
 export default function ActualExport(props: DefaultProps) {
-    const InnerBody = (props: {files: File[]}) => {
+    const InnerBody = (props: {data: TrimModalData; close: () => void}) => {
         const [startTime, setStartTime] = React.useState(0);
         const [endTime, setEndTime] = React.useState(0);
 
         const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
         const [selectedBound, setSelectedBound] = React.useState<Bounds | null>(null);
+        const [projects, setProjects] = React.useState<Project[]>([]);
 
         const setTime = (time: number) => {
             switch (selectedBound) {
@@ -45,9 +53,39 @@ export default function ActualExport(props: DefaultProps) {
             }
         }
 
-        console.log('current start ' + startTime);
+        const submitTrim = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
 
-        const file = props.files[0];
+            if (!props.data) {
+                return;
+            }
+
+            const file = props.data.files[0];
+
+            const index = file.name.lastIndexOf('.');
+            const name = file.name.substring(0, index);
+            const ext = file.name.substring(index);
+            const newName = `${name}-trimmed${ext}`;
+            const file2 = new File([file], newName, { type: file.type });
+
+            if (props.data.upload) {
+                props.data.upload([file, file2]);
+                props.close();
+            }
+
+            // const formData = new FormData();
+            // formData.append('file', props.data.files[0]);
+            // formData.append('start', startTime.toString());
+            // formData.append('end', endTime.toString());
+
+            // fetch('/plugins/music-sniper/trim', {
+            //     body: formData,
+            //     method: 'POST',
+            // }).then(r => r.text()).then(console.log);
+        }
+
+        const file = props.data.files[0];
         const blobURL = URL.createObjectURL(file);
 
         React.useEffect(() => {
@@ -62,6 +100,10 @@ export default function ActualExport(props: DefaultProps) {
             }
         }, [selectedBound]);
 
+        React.useEffect(() => {
+            fetch('/plugins/music-sniper/projects').then(r => r.json()).then(setProjects);
+        }, []);
+
         const clickedBoundsButton = (b: Bounds) => (e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -69,19 +111,43 @@ export default function ActualExport(props: DefaultProps) {
         }
 
         return (
-            <div style={{width: '100%'}}>
+            <div>
                 <div>
-                    <button onClick={clickedBoundsButton(Bounds.Start)}>{'Start Time'}</button>
+                    <FormButton
+                        btnClass='btn btn-primary'
+                        saving={false}
+                        onClick={clickedBoundsButton(Bounds.Start)}
+                    >
+                        {'Start'}
+                    </FormButton>
                     <input value={startTime} onChange={e => setStartTime(parseInt(e.target.value))}/>
                 </div>
                 <div>
-                    <button onClick={clickedBoundsButton(Bounds.End)}>{'End Time'}</button>
+                    <FormButton
+                        btnClass='btn btn-primary'
+                        saving={false}
+                        onClick={clickedBoundsButton(Bounds.End)}
+                    >
+                        {'End'}
+                    </FormButton>
                     <input value={endTime} onChange={e => setEndTime(parseFloat(e.target.value))}/>
                 </div>
 
-                <audio controls={true} ref={audioRef}>
-                    <source src={blobURL} type='audio/mp3'/>
+                <audio controls={true} ref={audioRef} style={{width: '100%'}}>
+                    <source src={blobURL} type={`audio/${file.name.split('.').pop()}`}/>
                 </audio>
+                <select>
+                    {projects.map((project) => (
+                        <option value={project.ID}>{project.Name}</option>
+                    ))}
+                </select>
+                <FormButton
+                    btnClass='btn btn-primary'
+                    saving={false}
+                    onClick={submitTrim}
+                >
+                    {'Trim'}
+                </FormButton>
             </div>
         );
     }
@@ -95,25 +161,14 @@ export default function ActualExport(props: DefaultProps) {
             return <span>{'No files'}</span>;
         }
 
-        return <InnerBody files={props.data.files}/>
-    }
-
-    const submitForm = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        fetch('/plugins/music-sniper/trim', {
-            body: 'yo',
-            method: 'POST',
-        }).then(r => r.text()).then(console.log);
+        return <InnerBody {...props}/>
     }
 
     const footer = (props: any) => (
         <FormButton
-            id='submit-button'
-            type='submit'
             btnClass='btn btn-primary'
             saving={false}
-            onClick={submitForm}
+            onClick={e => e.stopPropagation()}
         >
             {'Create'}
         </FormButton>

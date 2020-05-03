@@ -12,6 +12,8 @@
 // See LICENSE.txt for license information.
 
 import {Store, FileHookResponse} from "./util/plugin_registry";
+import {Post} from "mattermost-redux/types/posts";
+import {getPost} from "mattermost-redux/selectors/entities/posts";
 
 export default class Hooks implements IHooks {
     constructor(private store: Store) {}
@@ -32,10 +34,31 @@ export default class Hooks implements IHooks {
         };
     }
 
-    // slashCommandWillBePostedHook = (message, contextArgs) => {
-    //     let messageTrimmed;
-    //     if (message) {
-    //         messageTrimmed = message.trim();
-    //     }
-    // }
+    /**
+        * Register a hook that will be called before a message is formatted into Markdown.
+        * Accepts a function that receives the unmodified post and the message (potentially
+        * already modified by other hooks) as arguments. This function must return a string
+        * message that will be formatted.
+        * Returns a unique identifier.
+    */
+    messageWillFormatHook = (post: Post, message: string): string => {
+        const timestamps = message.split(' ').map(word => word.match(/([0-9]*):([0-9]*)/)).filter(Boolean).map(t => t[0]);
+        if (!timestamps) {
+            return message;
+        }
+
+        let filePost = post;
+        if (post.root_id) {
+            filePost = getPost(this.store.getState(), post.root_id);
+        }
+
+        if (!filePost.file_ids) {
+            return message;
+        }
+
+        return timestamps.reduce((accum: string, timestamp: string): string => {
+            const link = `[${timestamp}](mattermusic://postID=${post.id}&seekTo=${timestamp})`;
+            return accum.replace(timestamp, link);
+        }, message);
+    }
 }
