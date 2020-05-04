@@ -27,7 +27,14 @@ export default class Plugin {
     initialize(registry: Registry, store: Store) {
         this.registry = registry;
         this.store = store;
-        registry.registerReducer(reducers);
+
+        try {
+            registry.registerReducer(reducers);
+        } catch (e) {
+            if (!e.toString().includes('display_name')) {
+                throw e;
+            }
+        }
 
         const hooks = new Hooks(store);
         // registry.registerFilesWillUploadHook(hooks.filesWillUploadHook);
@@ -49,15 +56,19 @@ export default class Plugin {
     }
 
     anchorClickHandler = (e) => {
-        const href = e.target.href;
+        let href = e.target && e.target.href;
         if (!href) {
-            return;
+            href = e.target.parentElement && e.target.parentElement.href;
+            if (!href) {
+                return;
+            }
         }
 
         const prefix = 'mattermusic://'
         if (!href.startsWith(prefix)) {
             return;
         }
+
         e.preventDefault();
         e.stopPropagation();
 

@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function SeekTooltip({href, theme, dispatch}: Props) {
-    if (!href.startsWith('music-sniper|')) {
+    if (!href.startsWith('mattermusic://')) {
         return null;
     }
     const style = getStyle(theme);

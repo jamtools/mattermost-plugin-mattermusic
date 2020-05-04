@@ -3,7 +3,9 @@ import {GlobalState} from 'mattermost-redux/types/store';
 import {Post} from 'mattermost-redux/types/posts';
 import {DispatchFunc, GetStateFunc} from 'mattermost-redux/types/actions';
 import {Client4} from 'mattermost-redux/client';
-import {getPost} from 'mattermost-redux/selectors/entities/posts';
+import {getPost, getPostsInThread} from 'mattermost-redux/selectors/entities/posts';
+import {makeGetFilesForPost} from 'mattermost-redux/selectors/entities/files';
+import {FileInfo} from 'mattermost-redux/types/files';
 
 export function getRhsState(state: GlobalState): any {
     return state.views.rhs.rhsState;
@@ -21,23 +23,24 @@ const ActionTypes = {
 export function playAndShowComments(postID: string, seekTo?: string) {
     return (dispatch: DispatchFunc, getState: GetStateFunc) => {
         const state = getState();
-
-        let fileID;
+        if (!postID) {
+            alert('no post id');
+        }
         const post = getPost(state, postID);
-        if(post.root_id) {
-            const rootPost = getPost(state, post.root_id);
-            if (rootPost.file_ids) {
-                fileID = rootPost.file_ids[0];
-            }
-        }
-        else if (post.file_ids) {
-            fileID = post.file_ids[0];
+        if (!post) {
+            alert('no post');
         }
 
-        if (fileID) {
+        Client4.getPost
+
+        const filePostID = post.root_id || post.id;
+        const fileInfos: FileInfo[] = makeGetFilesForPost()(state, filePostID);
+
+        const fileInfo = fileInfos[0];
+        if (fileInfo) {
             dispatch({
                 type: 'SEEK_GLOBAL_PLAYER',
-                data: {fileID, seekTo},
+                data: {fileInfo, seekTo, postID},
             });
         }
 

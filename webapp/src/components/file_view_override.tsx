@@ -5,7 +5,7 @@ import {connect} from 'react-redux';
 import {FileInfo} from 'mattermost-redux/types/files';
 import {Post} from 'mattermost-redux/types/posts';
 
-import {selectPost, setRhsExpanded} from '../actions';
+import {playAndShowComments} from '../actions';
 import {State} from '../reducers';
 
 /**
@@ -26,9 +26,7 @@ type StateProps = {
 
 type DispatchProps = {
     // showSeekTimestamps: (fileID: string, timestamps: string[]) => void;
-    openRHS: (post: Post) => void;
-    expandRHS: () => void;
-    playFile: (fileID: string) => void;
+    playAndShowComments: (postID: string, seekTo?: string) => void;
 };
 
 // type Props = StateProps & DispatchProps
@@ -46,9 +44,7 @@ export const config = {
     state: (state: State, ownProps: {postId: string}) => {
     },
     dispatch: (dispatch) => bindActionCreators({
-        openRHS: selectPost,
-        expandRHS: () => setRhsExpanded(true),
-        playFile: (fileID: string) => ({type: 'SEEK_GLOBAL_PLAYER', data: {fileID, seekTo: 0}}),
+        playAndShowComments,
     }, dispatch),
 }
 
@@ -56,7 +52,8 @@ const FileViewOverride = connect(config.state, config.dispatch)(FileViewOverride
 export default FileViewOverride;
 
 export const shouldDisplayFileOverride = (fileInfo: FileInfo, post: Post) => {
-    return fileInfo.mime_type.includes('audio');
+    // let mime = fileInfo.mime_type
+    return fileInfo.mime_type.includes('audio') || fileInfo.mime_type.includes('video');
 }
 
 type Props = {
@@ -66,42 +63,11 @@ type Props = {
 } & DispatchProps;
 
 export function FileViewOverrideImpl(props: Props) {
-    const fileURL = `/api/v4/files/${props.fileInfo.id}`;
-
     React.useEffect(() => {
         if (props.fileInfo) {
             props.onModalDismissed();
-            props.openRHS(props.post);
-            props.expandRHS();
-            props.playFile(props.fileInfo.id);
+            props.playAndShowComments(props.post.id)
         }
     }, [props.fileInfo]);
     return null;
-
-    const showComments = () => {
-        props.onModalDismissed();
-        props.openRHS(props.post);
-        props.playFile(props.fileInfo.id);
-    }
-
-    return (
-        <div style={{
-            height: '500px',
-            width: '500px',
-            // backgroundColor: 'yellow',
-        }}>
-            <button onClick={showComments}>{'Show Comments'}</button>
-            <audio
-                style={{width: '100%', height: '50px'}}
-                controls={true}
-                // autoPlay={true}
-                // ref={audioRef}
-                >
-                <source
-                    src={fileURL}
-                    // type={`audio/${props.data.name.split('.').pop()}`}
-                    />
-            </audio>
-        </div>
-    );
 }

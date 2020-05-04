@@ -105,6 +105,9 @@ func (p *Plugin) handleTrim(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// r.ParseMultipartForm(0)
+	// file := r.Form.Get("file")
+
 	w.WriteHeader(200)
 	w.Write(data)
 }

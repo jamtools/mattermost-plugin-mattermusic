@@ -11,7 +11,7 @@ import createModal, {ConnectConfig} from './modal';
 import {Project} from 'src/model';
 
 const config: ConnectConfig<TrimModalData> = {
-    state: ({'plugins-music-sniper': {trimModal}}) => ({
+    state: ({'plugins-mattermusic': {trimModal}}) => ({
         open: Boolean(trimModal),
         data: trimModal,
     }),
@@ -79,7 +79,7 @@ export default function ActualExport(props: DefaultProps) {
             // formData.append('start', startTime.toString());
             // formData.append('end', endTime.toString());
 
-            // fetch('/plugins/music-sniper/trim', {
+            // fetch('/plugins/mattermusic/trim', {
             //     body: formData,
             //     method: 'POST',
             // }).then(r => r.text()).then(console.log);
@@ -101,7 +101,7 @@ export default function ActualExport(props: DefaultProps) {
         }, [selectedBound]);
 
         React.useEffect(() => {
-            fetch('/plugins/music-sniper/projects').then(r => r.json()).then(setProjects);
+            fetch('/plugins/mattermusic/projects').then(r => r.json()).then(setProjects);
         }, []);
 
         const clickedBoundsButton = (b: Bounds) => (e) => {

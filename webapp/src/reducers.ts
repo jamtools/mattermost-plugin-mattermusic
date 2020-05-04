@@ -1,5 +1,6 @@
 import {combineReducers} from 'redux';
 import {GlobalState} from 'mattermost-redux/types/store';
+import {FileInfo} from 'mattermost-redux/types/files';
 
 export type TrimModalData = {
     files: File[],
@@ -18,7 +19,8 @@ function trimModal(state: TrimModalData = null, action: {type: string; data?: Tr
 }
 
 export type GlobalPlayerData = {
-    fileID: string;
+    postID: string;
+    fileInfo: FileInfo;
     seekTo: string;
 } | null
 
@@ -56,7 +58,7 @@ export type PluginState = {
 };
 
 export type State = GlobalState & {
-    'plugins-music-sniper': PluginState;
+    'plugins-mattermusic': PluginState;
 }
 
 export default combineReducers({

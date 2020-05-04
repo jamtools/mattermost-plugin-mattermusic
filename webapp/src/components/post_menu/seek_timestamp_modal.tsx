@@ -11,7 +11,7 @@ import createModal, {ConnectConfig} from '../modal';
 import {Project} from 'src/model';
 
 const config: ConnectConfig<SeekTimestampModalData> = {
-    state: ({'plugins-music-sniper': {seekTimestampModal}}) => ({
+    state: ({'plugins-mattermusic': {seekTimestampModal}}) => ({
         open: Boolean(seekTimestampModal),
         data: seekTimestampModal,
     }),

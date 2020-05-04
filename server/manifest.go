@@ -12,7 +12,7 @@ var manifest *model.Manifest
 
 const manifestStr = `
 {
-  "id": "music-sniper",
+  "id": "mattermusic",
   "name": "Music Collaboration Tool",
   "description": "Share music projects with your friends!",
   "version": "0.1.0",

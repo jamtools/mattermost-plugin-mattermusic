@@ -61,6 +61,8 @@
     "mattermost-redux": "github:mattermost/mattermost-redux#v5.22.1",
     "react": "16.8.6",
     "react-bootstrap": "^1.0.1",
+    "react-dnd": "^10.0.2",
+    "react-dnd-html5-backend": "^10.0.2",
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
