@@ -12,9 +12,9 @@ var manifest *model.Manifest
 
 const manifestStr = `
 {
-  "id": "com.mattermost.plugin-starter-template",
-  "name": "Plugin Starter Template",
-  "description": "This plugin serves as a starting point for writing a Mattermost plugin.",
+  "id": "mattermusic",
+  "name": "Music Collaboration Tool",
+  "description": "Share music projects with your friends!",
   "version": "0.1.0",
   "min_server_version": "5.12.0",
   "server": {
