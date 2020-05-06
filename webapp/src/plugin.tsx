@@ -40,11 +40,11 @@ export default class Plugin {
         // registry.registerFilesWillUploadHook(hooks.filesWillUploadHook);
         registry.registerMessageWillFormatHook(hooks.messageWillFormatHook)
 
-        registry.registerPostDropdownMenuComponent(SeekToTimestampPostMenuAction);
+        // registry.registerPostDropdownMenuComponent(SeekToTimestampPostMenuAction);
 
-        registry.registerRootComponent(SeekTimestampModal);
+        // registry.registerRootComponent(SeekTimestampModal);
         registry.registerRootComponent(GlobalPlayer);
-        registry.registerRootComponent(TrimModal);
+        // registry.registerRootComponent(TrimModal);
 
         registry.registerFilePreviewComponent(shouldDisplayFileOverride, FileViewOverride);
 
