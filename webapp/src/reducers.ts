@@ -35,6 +35,38 @@ function globalPlayer(state: GlobalPlayerData = null, action: {type: string; dat
     }
 }
 
+export type YoutubePlayerData = {
+    postID: string;
+    seekTo: string;
+    videoID: string;
+} | null
+
+type SelectPostPayload = {type: string; postId: string;}
+type YoutubePlayerAction = {type: string; data?: YoutubePlayerData};
+
+function youtubePlayer(state: YoutubePlayerData = null, action: YoutubePlayerAction | SelectPostPayload) {
+    switch(action.type) {
+        case 'SEEK_YOUTUBE_PLAYER':
+            return action.data;
+        case 'CLOSE_YOUTUBE_PLAYER':
+            return null;
+        case 'SELECT_POST':
+            if (!action.postId) {
+                return null;
+            }
+            if (!state){
+                return null;
+            }
+
+            if (action.postId !== state.postID) {
+                return null;
+            }
+
+        default:
+            return state;
+    }
+}
+
 export type SeekTimestampModalData = {
     fileID: string;
     timestamps: string[];
@@ -54,6 +86,7 @@ function seekTimestampModal(state: SeekTimestampModalData = null, action: {type:
 export type PluginState = {
     trimModal: TrimModalData;
     globalPlayer: GlobalPlayerData;
+    youtubePlayer: YoutubePlayerData;
     seekTimestampModal: SeekTimestampModalData;
 };
 
@@ -64,5 +97,6 @@ export type State = GlobalState & {
 export default combineReducers({
     trimModal,
     globalPlayer,
+    youtubePlayer,
     seekTimestampModal,
 })

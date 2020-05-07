@@ -363,7 +363,7 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
 
     extraButtons.push(
         <div
-            key={'comments-link'}
+            key={'timestamps-link'}
             style={{
                 ...closeButtonStyle,
                 ...timeStampButtonStyle,

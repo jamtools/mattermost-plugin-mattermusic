@@ -55,7 +55,7 @@ export default class Hooks implements IHooks {
         }
 
         const hasMedia = postHasMedia(state, mediaPost);
-        if (!hasMedia) { // && !getYoutubeVideoID(post.message)) {
+        if (!hasMedia && !getYoutubeVideoID(mediaPost.message)) {
             return message;
         }
 
@@ -66,25 +66,25 @@ export default class Hooks implements IHooks {
             }, message);
         }
 
-        // if (getYoutubeVideoID(post.message)) {
-        //     return timestamps.reduce((accum: string, timestamp: string): string => {
-        //         const link = makeYoutubeTimestampLink(mediaPost.message, timestamp);
-        //         return accum.replace(timestamp, link);
-        //     }, message);
-        // }
+        if (getYoutubeVideoID(mediaPost.message)) {
+            return timestamps.reduce((accum: string, timestamp: string): string => {
+                const link = makeYoutubeTimestampLink(mediaPost, timestamp);
+                return accum.replace(timestamp, link);
+            }, message)
+        }
 
         return message;
     }
 }
 
 const makeMediaTimestampLink = (post: Post, timestamp: string): string => {
-    return `[${timestamp}](mattermusic://postID=${post.id}&seekTo=${timestamp})`;
-    // return `[${timestamp}](mattermusic://media?postID=${post.id}&seekTo=${timestamp})`;
+    // return `[${timestamp}](mattermusic://postID=${post.id}&seekTo=${timestamp})`;
+    return `[${timestamp}](mattermusic://media?postID=${post.id}&seekTo=${timestamp})`;
 }
 
-const makeYoutubeTimestampLink = (message: string, timestamp: string): string => {
-    const vid = getYoutubeVideoID(message);
-    return `[${timestamp}](mattermusic://youtube?postID=${post.id}&seekTo=${timestamp})&videoID=${vid}`;
+const makeYoutubeTimestampLink = (post: Post, timestamp: string): string => {
+    const vid = getYoutubeVideoID(post.message);
+    return `[${timestamp}](mattermusic://youtube?postID=${post.id}&seekTo=${timestamp}&videoID=${vid})`;
 }
 
 export const getYoutubeVideoID = (message: string) => {

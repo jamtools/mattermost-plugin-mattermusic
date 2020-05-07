@@ -83,3 +83,14 @@ export function getTimestampFromSeconds(seconds: number) {
 
     return `${minuteStr}:${secondStr}`;
 }
+
+export function getSecondsFromTimestamp(timestamp: string): number {
+    if(!timestamp) {
+        return 0;
+    }
+
+    const [minuteStr, secondsStr] = timestamp.split(':');
+    const minutes = parseInt(minuteStr);
+    const seconds = parseInt(secondsStr);
+    return minutes*60 + seconds;
+}

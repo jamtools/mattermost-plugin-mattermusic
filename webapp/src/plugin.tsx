@@ -17,6 +17,7 @@ import GlobalPlayer from './components/global_player';
 import {parseQueryString} from './util/util';
 import FileViewOverride, {shouldDisplayFileOverride} from './components/file_view_override';
 import {playAndShowComments} from './actions';
+import YoutubePlayer from './components/youtube_player';
 
 export default class Plugin {
     private registry: Registry;
@@ -44,11 +45,14 @@ export default class Plugin {
 
         // registry.registerRootComponent(SeekTimestampModal);
         registry.registerRootComponent(GlobalPlayer);
+        registry.registerRootComponent(YoutubePlayer);
         // registry.registerRootComponent(TrimModal);
 
         registry.registerFilePreviewComponent(shouldDisplayFileOverride, FileViewOverride);
 
         window.addEventListener('click', this.anchorClickHandler);
+
+        this.initYoutube();
     }
 
     uninitialize() {
@@ -72,9 +76,27 @@ export default class Plugin {
         e.preventDefault();
         e.stopPropagation();
 
-        const query = href.substring(prefix.length);
-        const {postID, seekTo} = parseQueryString(query)
+        const link = href.substring(prefix.length);
+        const [name, query] = link.split('?');
+        const {postID, seekTo, videoID} = parseQueryString(query);
 
-        this.store.dispatch(playAndShowComments(postID, seekTo));
+        if (name === 'media') {
+            this.store.dispatch(playAndShowComments(postID, seekTo));
+        } else if(name === 'youtube') {
+            this.store.dispatch(playAndShowComments(postID, seekTo, videoID));
+        }
+    }
+
+    initYoutube = () => {
+        setTimeout(() => {
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+            window.onYouTubeIframeAPIReady = () => {
+                console.log('LOADED YOUTUBE!!!!!');
+            }
+        }, 1000);
     }
 }
