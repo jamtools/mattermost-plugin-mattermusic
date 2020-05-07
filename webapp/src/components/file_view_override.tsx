@@ -53,6 +53,9 @@ export default FileViewOverride;
 
 export const shouldDisplayFileOverride = (fileInfo: FileInfo, post: Post) => {
     // let mime = fileInfo.mime_type
+    if (!fileInfo || !fileInfo.mime_type) {
+        return false
+    }
     return fileInfo.mime_type.includes('audio') || fileInfo.mime_type.includes('video');
 }
 

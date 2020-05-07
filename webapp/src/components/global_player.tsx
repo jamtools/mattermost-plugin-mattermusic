@@ -1,17 +1,21 @@
 import React from 'react';
+import {connect} from 'react-redux';
 import {useDrag, DndProvider} from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
 
+import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
+
 import {State, GlobalPlayerData} from 'src/reducers';
 import {bindActionCreators} from 'redux';
-import {connect} from 'react-redux';
 import FormButton from './form_button';
 import {getMimeFromExtension, copyTextToClipboard, getTimestampFromSeconds} from '../util/util';
 import {playAndShowComments} from '../actions';
+import {Theme} from 'mattermost-redux/types/preferences';
 
 type StateProps<T> = {
     show: boolean;
     data: T;
+    theme: Theme;
 };
 
 type DispatchProps = {
@@ -30,9 +34,10 @@ export type ConnectConfig<T> = {
     dispatch(dispatch: (action: Action) => any): any;
 }
 export const config = {
-    state: ({'plugins-mattermusic': {globalPlayer}}: State) => ({
-        show: Boolean(globalPlayer),
-        data: globalPlayer,
+    state: ({'plugins-mattermusic': p, ...state}: State) => ({
+        show: Boolean(p.globalPlayer),
+        data: p.globalPlayer,
+        theme: getTheme(state),
     }),
     dispatch: (dispatch) => bindActionCreators({
         close: () => ({type: 'CLOSE_GLOBAL_PLAYER'}),
@@ -58,11 +63,14 @@ enum MobilePlacement {
     BOTTOM,
 }
 
-const getDefaultPlacement = (mime: Mimes): any => {
+const getDefaultPlacement = (mime: Mimes, videoSize?:VideoPlayerSize): any => {
     if (mime.includes(Mimes.AUDIO)) {
         return audioDefaultPlacement;
     } else {
-        return videoDefaultPlacement;
+        if (isVideoSizeSmall(videoSize as VideoPlayerSize)) {
+            return videoDefaultPlacement;
+        }
+        return videoDefaultBigPlacement;
     }
 }
 
@@ -76,10 +84,21 @@ const videoDefaultPlacement = {
     right: '0px',
 }
 
+const videoDefaultBigPlacement = {
+    bottom: '0px',
+    right: '0px',
+}
+
 enum Mimes {
     AUDIO = 'audio',
     VIDEO = 'video',
 }
+
+enum VideoPlayerSize {
+    SMALL = 'small',
+    BIG = 'big',
+}
+const isVideoSizeSmall = (videoSize: VideoPlayerSize) => videoSize === VideoPlayerSize.SMALL;
 
 export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
     const playerRef = React.createRef<HTMLAudioElement>();
@@ -90,6 +109,7 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
     const [mobilePlacement, setMobilePlacement] = React.useState(MobilePlacement.TOP);
     const [shouldDrag, setShouldDrag] = React.useState(false);
     const [visible, setVisible] = React.useState(true);
+    const [videoSize, setVideoSize] = React.useState(VideoPlayerSize.SMALL);
 
     const [{ opacity }, dragRef] = useDrag({
         item: { type: 'CARD', text: 'Hey' },
@@ -116,13 +136,13 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
         if (props.data && props.data.fileInfo.id) {
             newFileURL = `/api/v4/files/${props.data.fileInfo.id}`;
             setFileURL(newFileURL);
-            setVisible(true);
-            const p = getDefaultPlacement(props.data.fileInfo.mime_type as Mimes);
+            const p = getDefaultPlacement(props.data.fileInfo.mime_type as Mimes, videoSize);
             setPlacement(p);
         }
     }, [props.data && props.data.fileInfo.id]);
 
     React.useEffect(() => {
+        setVisible(true);
         if (playerRef && playerRef.current) {
             const current = playerRef.current as HTMLAudioElement | HTMLVideoElement;
 
@@ -183,8 +203,12 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
             right: '10px',
         };
     } else {
+        let width = '650px'
+        if (mime.includes(Mimes.VIDEO)) {
+            width = isVideoSizeSmall(videoSize) ? '400px' : '700px';
+        }
         style = {
-            width: mime.includes('audio') ? '650px' :  '400px',
+            width,
             zIndex: 90000000,
             position: 'absolute',
             ...placement,
@@ -215,11 +239,15 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
 
     let content = <h1>{`Unsupported mime type ${mime}`}</h1>;
 
+    const audioStyle = getStyle(props.theme);
     if (mime.includes('audio')) {
         content = (
             <audio
                 key={fileURL}
-                style={{width: '100%'}}
+                style={{
+                    width: '100%',
+                    ...audioStyle,
+                }}
                 id={'global-player'}
                 controls={true}
                 // autoPlay={true}
@@ -267,6 +295,29 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
                 </a>
             </div>
         );
+
+        const changeVideoSize = () => {
+            const newVideoSize = isVideoSizeSmall(videoSize) ? VideoPlayerSize.BIG : VideoPlayerSize.SMALL;
+            setVideoSize(newVideoSize);
+            setPlacement(getDefaultPlacement(Mimes.VIDEO, newVideoSize));
+        };
+        if (mime.includes(Mimes.VIDEO)) {
+            extraButtons.push(
+                <div
+                    key={'size'}
+                    style={{
+                        ...closeButtonStyle,
+                        top: '-20px',
+                        left: '300px',
+                    }}
+                >
+                    <a
+                        onClick={changeVideoSize}
+                    >
+                        {isVideoSizeSmall(videoSize) ? 'Big' : 'Small'}
+                    </a>
+                </div>
+            );}
     } else if (isMobile && visible) {
         extraButtons.push(
             <div
@@ -294,9 +345,12 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
             return;
         }
 
-        const currentTime = playerRef.current.currentTime;
-        const timeStr = getTimestampFromSeconds(currentTime);
+        let currentTime = playerRef.current.currentTime;
+        if (!playerRef.current.paused) {
+            currentTime = Math.max(0, currentTime - 2);
+        }
 
+        const timeStr = ` ${getTimestampFromSeconds(currentTime)} `;
         copyTextToClipboard(timeStr);
     }
 
@@ -379,3 +433,10 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
         </div>
     )
 }
+
+const getStyle = (theme: Theme) => ({
+    audioPlayer: {
+        backgroundColor: theme.centerChannelBg,
+        display: 'block',
+    },
+})

@@ -14,6 +14,7 @@
 import {Store, FileHookResponse} from "./util/plugin_registry";
 import {Post} from "mattermost-redux/types/posts";
 import {getPost} from "mattermost-redux/selectors/entities/posts";
+import {postHasMedia} from "./selectors";
 
 export default class Hooks implements IHooks {
     constructor(private store: Store) {}
@@ -42,23 +43,56 @@ export default class Hooks implements IHooks {
         * Returns a unique identifier.
     */
     messageWillFormatHook = (post: Post, message: string): string => {
-        const timestamps = message.split(' ').map(word => word.match(/([0-9]*):([0-9]*)/)).filter(Boolean).map(t => t[0]);
+        const timestamps = message.match(/([0-9]+):([0-5][0-9])/g);
         if (!timestamps) {
             return message;
         }
 
-        let filePost = post;
+        const state = this.store.getState();
+        let mediaPost = post;
         if (post.root_id) {
-            filePost = getPost(this.store.getState(), post.root_id);
+            mediaPost = getPost(state, post.root_id);
         }
 
-        if (!filePost.file_ids) {
+        const hasMedia = postHasMedia(state, mediaPost);
+        if (!hasMedia) { // && !getYoutubeVideoID(post.message)) {
             return message;
         }
 
-        return timestamps.reduce((accum: string, timestamp: string): string => {
-            const link = `[${timestamp}](mattermusic://postID=${post.id}&seekTo=${timestamp})`;
-            return accum.replace(timestamp, link);
-        }, message);
+        if (hasMedia) {
+            return timestamps.reduce((accum: string, timestamp: string): string => {
+                const link = makeMediaTimestampLink(mediaPost, timestamp);
+                return accum.replace(timestamp, link);
+            }, message);
+        }
+
+        // if (getYoutubeVideoID(post.message)) {
+        //     return timestamps.reduce((accum: string, timestamp: string): string => {
+        //         const link = makeYoutubeTimestampLink(mediaPost.message, timestamp);
+        //         return accum.replace(timestamp, link);
+        //     }, message);
+        // }
+
+        return message;
     }
+}
+
+const makeMediaTimestampLink = (post: Post, timestamp: string): string => {
+    return `[${timestamp}](mattermusic://postID=${post.id}&seekTo=${timestamp})`;
+    // return `[${timestamp}](mattermusic://media?postID=${post.id}&seekTo=${timestamp})`;
+}
+
+const makeYoutubeTimestampLink = (message: string, timestamp: string): string => {
+    const vid = getYoutubeVideoID(message);
+    return `[${timestamp}](mattermusic://youtube?postID=${post.id}&seekTo=${timestamp})&videoID=${vid}`;
+}
+
+export const getYoutubeVideoID = (message: string) => {
+    const r = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\? ]*).*/;
+    const matched = message.match(r);
+    if (!matched) {
+        return '';
+    }
+
+    return matched[1];
 }
