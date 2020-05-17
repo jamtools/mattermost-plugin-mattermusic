@@ -43,8 +43,15 @@ export default class Hooks implements IHooks {
         * Returns a unique identifier.
     */
     messageWillFormatHook = (post: Post, message: string): string => {
+        const vID = getYoutubeVideoID(message);
+
         const timestamps = message.match(/([0-9]+):([0-5][0-9])/g);
         if (!timestamps) {
+            if (vID) {
+                const link = makeYoutubeTimestampLink(post, '  (Comment)');
+                // return `${message}`;
+                return `${message} ${link}`;
+            }
             return message;
         }
 

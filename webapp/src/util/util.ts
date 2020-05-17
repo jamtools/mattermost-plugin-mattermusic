@@ -13,19 +13,6 @@ export function parseQueryString(query: string): any {
     }, {});
 }
 
-const extensionMap: {[extension: string]: string} = {
-    mp3: 'audio/mp3',
-}
-
-export function getMimeFromFileInfo(fileInfo: FileInfo): string {
-    if (fileInfo.mime_type) {
-        return fileInfo.mime_type;
-    }
-
-    const extension = fileInfo.extension;
-    return extensionMap[extension];
-}
-
 function fallbackCopyTextToClipboard(text: string) {
     const textArea = document.createElement('textarea');
     textArea.value = text;

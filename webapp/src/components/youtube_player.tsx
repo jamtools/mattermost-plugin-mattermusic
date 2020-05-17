@@ -141,6 +141,10 @@ export function YoutubePlayerImpl(props: Props<YoutubePlayerData>) {
 
             if (getPlayerAndInfo) {
                 const info = getPlayerAndInfo.func();
+                if (info.data.postID !== props.data.postID) {
+                    setGetPlayer(null);
+                    return;
+                }
             }
 
             const YT = (window as any).YT;

@@ -29,6 +29,7 @@ function globalPlayer(state: GlobalPlayerData = null, action: {type: string; dat
         case 'SEEK_GLOBAL_PLAYER':
             return action.data;
         case 'CLOSE_GLOBAL_PLAYER':
+        case 'SEEK_YOUTUBE_PLAYER':
             return null;
         default:
             return state;
@@ -47,20 +48,26 @@ type YoutubePlayerAction = {type: string; data?: YoutubePlayerData};
 function youtubePlayer(state: YoutubePlayerData = null, action: YoutubePlayerAction | SelectPostPayload) {
     switch(action.type) {
         case 'SEEK_YOUTUBE_PLAYER':
+            if (state) {
+                if (state.postID !== action.data.postID) {
+                    return null;
+                }
+            }
             return action.data;
         case 'CLOSE_YOUTUBE_PLAYER':
+        case 'SEEK_GLOBAL_PLAYER':
             return null;
         case 'SELECT_POST':
             if (!action.postId) {
                 return null;
             }
-            if (!state){
-                return null;
-            }
+            // if (!state){
+            //     return null;
+            // }
 
-            if (action.postId !== state.postID) {
-                return null;
-            }
+            // if (action.postId !== state.postID) {
+            //     return null;
+            // }
 
         default:
             return state;
