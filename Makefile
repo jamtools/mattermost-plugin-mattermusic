@@ -84,9 +84,13 @@ wd: webapp-debug
 webapp-debug:
 ifneq ($(HAS_WEBAPP),)
 # link the webapp directory
-	rm -rf ../../mattermost/mattermost-server/plugins/$(PLUGIN_ID)/webapp
-	mkdir -p ../../mattermost/mattermost-server/plugins/$(PLUGIN_ID)/webapp
-	ln -nfs $(PWD)/webapp/dist ../../mattermost/mattermost-server/plugins/$(PLUGIN_ID)/webapp/dist
+# 	rm -rf ../../mattermost/mattermost-server/plugins/$(PLUGIN_ID)/webapp
+# 	mkdir -p ../../mattermost/mattermost-server/plugins/$(PLUGIN_ID)/webapp
+	# ln -nfs $(PWD)/webapp/dist ../../mattermost/mattermost-server/plugins/$(PLUGIN_ID)/webapp/dist
+
+	rm -rf ../../mattermost/mattermost-server/client/plugins/$(PLUGIN_ID)
+	# mkdir -p ../../mattermost/mattermost-server/client/plugins/$(PLUGIN_ID)
+	ln -nfs $(PWD)/webapp/dist ../../mattermost/mattermost-server/client/plugins/$(PLUGIN_ID)
 # start an npm watch
 	cd webapp && $(NPM) run run
 endif
