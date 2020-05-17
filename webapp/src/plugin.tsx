@@ -13,7 +13,7 @@ import reducers from './reducers';
 import TrimModal from './components/trim_modal';
 import SeekToTimestampPostMenuAction from './components/post_menu/seek_to_timestamp';
 import SeekTimestampModal from './components/post_menu/seek_timestamp_modal';
-import GlobalPlayer from './components/global_player';
+import GlobalPlayer from './components/global_player/global_player';
 import {parseQueryString} from './util/util';
 import FileViewOverride, {shouldDisplayFileOverride} from './components/file_view_override';
 import {playAndShowComments} from './actions';

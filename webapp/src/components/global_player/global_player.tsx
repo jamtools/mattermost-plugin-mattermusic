@@ -7,10 +7,11 @@ import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
 
 import {State, GlobalPlayerData} from 'src/reducers';
 import {bindActionCreators} from 'redux';
-import FormButton from './form_button';
-import {getMimeFromExtension, copyTextToClipboard, getTimestampFromSeconds} from '../util/util';
-import {playAndShowComments} from '../actions';
+import FormButton from '../form_button';
+import {copyTextToClipboard, getTimestampFromSeconds} from '../../util/util';
+import {playAndShowComments} from '../../actions';
 import {Theme} from 'mattermost-redux/types/preferences';
+import {getMimeFromFileInfo} from '../../util/file_types';
 
 type StateProps<T> = {
     show: boolean;
@@ -45,7 +46,7 @@ export const config = {
     }, dispatch),
 }
 
-const WithDND = (props: any) => {
+export const WithDND = (props: any) => {
     return (
         <DndProvider backend={Backend}>
             <GlobalPlayerImpl {...props}/>
@@ -136,7 +137,7 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
         if (props.data && props.data.fileInfo.id) {
             newFileURL = `/api/v4/files/${props.data.fileInfo.id}`;
             setFileURL(newFileURL);
-            const p = getDefaultPlacement(props.data.fileInfo.mime_type as Mimes, videoSize);
+            const p = getDefaultPlacement(getMimeFromFileInfo(props.data.fileInfo) as Mimes, videoSize);
             setPlacement(p);
         }
     }, [props.data && props.data.fileInfo.id]);
@@ -172,7 +173,7 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
         position: 'absolute',
     };
 
-    const mime = props.data.fileInfo.mime_type;
+    const mime = getMimeFromFileInfo(props.data.fileInfo);
 
     const isMobile = window.innerWidth <= 768;
     let style;
@@ -180,7 +181,7 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
     if (isMobile) {
         style = {
             width: '100%',
-            zIndex: 90000000,
+            zIndex: 1000,
             position: 'absolute',
         };
         if (mobilePlacement === MobilePlacement.TOP) {
@@ -209,7 +210,7 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
         }
         style = {
             width,
-            zIndex: 90000000,
+            zIndex: 1000,
             position: 'absolute',
             ...placement,
         };
