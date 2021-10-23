@@ -264,7 +264,7 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
         content = (
             <video
                 key={fileURL}
-                style={{width: '100%'}}
+                style={{width: '100%', maxHeight: '600px'}}
                 id={'global-player'}
                 controls={true}
                 // autoPlay={true}
@@ -280,23 +280,6 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
 
     const extraButtons = [];
     if (!isMobile && visible) {
-        extraButtons.push(
-            <div
-                key={'drag'}
-                style={{
-                    ...closeButtonStyle,
-                    top: '-20px',
-                    left: '80px',
-                }}
-            >
-                <a
-                    onClick={() => setShouldDrag(!shouldDrag)}
-                >
-                    {shouldDrag ? 'UnDrag' : 'Drag'}
-                </a>
-            </div>
-        );
-
         const changeVideoSize = () => {
             const newVideoSize = isVideoSizeSmall(videoSize) ? VideoPlayerSize.BIG : VideoPlayerSize.SMALL;
             setVideoSize(newVideoSize);
@@ -423,14 +406,18 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
                     {'Close'}
                 </a>
             </div> */}
-            <div style={closeButtonStyle}>
-                <a
-                    onClick={() => setVisible(!visible)}
-                >
-                    {visible ? 'Hide' : 'Show'}
-                </a>
-            </div>
-            {extraButtons}
+            {!isMobile && (
+                <>
+                    <div style={closeButtonStyle}>
+                        <a
+                            onClick={() => setVisible(!visible)}
+                        >
+                            {visible ? 'Hide' : 'Show'}
+                        </a>
+                    </div>
+                    {extraButtons}
+                </>
+            )}
         </div>
     )
 }

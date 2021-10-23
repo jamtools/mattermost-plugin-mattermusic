@@ -47,11 +47,11 @@ export default class Hooks implements IHooks {
 
         const timestamps = message.match(/([0-9]+):([0-5][0-9])/g);
         if (!timestamps) {
-            if (vID) {
-                const link = makeYoutubeTimestampLink(post, '  (Comment)');
-                // return `${message}`;
-                return `${message} ${link}`;
-            }
+            // if (vID) {
+            //     const link = makeYoutubeTimestampLink(post, '  (Comment)');
+            //     // return `${message}`;
+            //     return `${message} ${link}`;
+            // }
             return message;
         }
 
@@ -59,6 +59,10 @@ export default class Hooks implements IHooks {
         let mediaPost = post;
         if (post.root_id) {
             mediaPost = getPost(state, post.root_id);
+        }
+
+        if (!mediaPost) {
+            return message;
         }
 
         const hasMedia = postHasMedia(state, mediaPost);

@@ -5,7 +5,11 @@ import {FileInfo} from "mattermost-redux/types/files";
 import {getMimeFromFileInfo} from "./util/file_types";
 
 const getFiles = makeGetFilesForPost();
-export const postHasMedia = (state: GlobalState, post: Post): boolean => {
+export const postHasMedia = (state: GlobalState, post?: Post): boolean => {
+    if (!post) {
+        return false;
+    }
+
     if (post.file_ids) {
         const files = getFiles(state, post.id) as FileInfo[];
         const file = files[0];

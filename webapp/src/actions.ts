@@ -19,6 +19,8 @@ const ActionTypes = {
     SET_RHS_EXPANDED: 'SET_RHS_EXPANDED',
 }
 
+const getFilesForPost = makeGetFilesForPost();
+
 export function playAndShowComments(postID: string, seekTo?: string, videoID?: string) {
     return (dispatch: DispatchFunc, getState: GetStateFunc) => {
         const state = getState();
@@ -40,7 +42,7 @@ export function playAndShowComments(postID: string, seekTo?: string, videoID?: s
             });
         } else {
             const filePostID = post.root_id || post.id;
-            const fileInfos: FileInfo[] = makeGetFilesForPost()(state, filePostID);
+            const fileInfos: FileInfo[] = getFilesForPost(state, filePostID);
 
             const fileInfo = fileInfos[0];
             if (fileInfo) {
