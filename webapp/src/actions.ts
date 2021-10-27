@@ -21,7 +21,9 @@ const ActionTypes = {
 
 const getFilesForPost = makeGetFilesForPost();
 
-export function playAndShowComments(postID: string, seekTo?: string, videoID?: string) {
+type PlayAndShowCommentsArguments = {postID: string, seekTo?: string, videoID?: string, url?: string};
+
+export function playAndShowComments({postID, seekTo, videoID, url}: PlayAndShowCommentsArguments) {
     return (dispatch: DispatchFunc, getState: GetStateFunc) => {
         const state = getState();
         if (!postID) {
@@ -37,8 +39,13 @@ export function playAndShowComments(postID: string, seekTo?: string, videoID?: s
 
         if (videoID) {
             dispatch({
-                type: 'SEEK_YOUTUBE_PLAYER',
-                data: {postID, seekTo, videoID},
+                type: 'SEEK_EXTERNAL_PLAYER',
+                data: {postID, seekTo, url},
+            });
+        } else if (url) {
+            dispatch({
+                type: 'SEEK_GLOBAL_PLAYER',
+                data: {seekTo, postID, url},
             });
         } else {
             const filePostID = post.root_id || post.id;
@@ -48,7 +55,7 @@ export function playAndShowComments(postID: string, seekTo?: string, videoID?: s
             if (fileInfo) {
                 dispatch({
                     type: 'SEEK_GLOBAL_PLAYER',
-                    data: {fileInfo, seekTo, postID},
+                    data: {fileInfo, seekTo, postID, url},
                 });
             }
         }

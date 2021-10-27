@@ -43,15 +43,11 @@ export default class Hooks implements IHooks {
         * Returns a unique identifier.
     */
     messageWillFormatHook = (post: Post, message: string): string => {
-        const vID = getYoutubeVideoID(message);
+        const timestamps = parseTimestamps(message);
 
-        const timestamps = message.match(/([0-9]+):([0-5][0-9])/g);
-        if (!timestamps) {
-            // if (vID) {
-            //     const link = makeYoutubeTimestampLink(post, '  (Comment)');
-            //     // return `${message}`;
-            //     return `${message} ${link}`;
-            // }
+        let cloudFrontLink = getCloudFrontLink(message);
+
+        if (!timestamps.length && !cloudFrontLink.length) {
             return message;
         }
 
@@ -66,7 +62,9 @@ export default class Hooks implements IHooks {
         }
 
         const hasMedia = postHasMedia(state, mediaPost);
-        if (!hasMedia && !getYoutubeVideoID(mediaPost.message)) {
+        cloudFrontLink = getCloudFrontLink(mediaPost.message);
+
+        if (!hasMedia && !getYoutubeVideoID(mediaPost.message) && !cloudFrontLink.length) {
             return message;
         }
 
@@ -84,18 +82,31 @@ export default class Hooks implements IHooks {
             }, message)
         }
 
+        if (cloudFrontLink.length) {
+            message = message.replace(cloudFrontLink, makeCloudFrontTimestampLink(mediaPost, cloudFrontLink, ''));
+
+            return timestamps.reduce((accum: string, timestamp: string): string => {
+                const link = makeCloudFrontTimestampLink(mediaPost, cloudFrontLink, timestamp);
+                return accum.replace(timestamp, link);
+            }, message)
+        }
+
         return message;
     }
 }
 
 const makeMediaTimestampLink = (post: Post, timestamp: string): string => {
     // return `[${timestamp}](mattermusic://postID=${post.id}&seekTo=${timestamp})`;
-    return `[${timestamp}](mattermusic://media?postID=${post.id}&seekTo=${timestamp})`;
+    const condensed = getCondensedTimestamp(timestamp);
+
+    return `[${timestamp}](mattermusic://media?postID=${post.id}&seekTo=${condensed})`;
 }
 
 const makeYoutubeTimestampLink = (post: Post, timestamp: string): string => {
     const vid = getYoutubeVideoID(post.message);
-    return `[${timestamp}](mattermusic://youtube?postID=${post.id}&seekTo=${timestamp}&videoID=${vid})`;
+    const seconds = getSecondsFromTimestamp(timestamp);
+    return `[${timestamp}](https://youtube.com/watch?v=${vid}?t=${seconds})`;
+    // return `[${timestamp}](mattermusic://youtube?postID=${post.id}&seekTo=${timestamp}&videoID=${vid})`;
 }
 
 export const getYoutubeVideoID = (message: string) => {
@@ -106,4 +117,62 @@ export const getYoutubeVideoID = (message: string) => {
     }
 
     return matched[1];
+}
+
+const makeCloudFrontTimestampLink = (post: Post, cloudFrontLink: string, timestamp: string): string => {
+    let seekTo = '';
+    if (timestamp.length) {
+        seekTo = getCondensedTimestamp(timestamp);
+    }
+
+    let label = timestamp;
+    if (!timestamp.length) {
+        label = cloudFrontLink;
+    }
+
+    return `[${label}](mattermusic://external?postID=${post.id}&url=${cloudFrontLink}&seekTo=${seekTo})`;
+}
+
+const getCloudFrontLink = (message: string): string => {
+    const urlRegex = /(https:\/\/[a-z0-9]+\.cloudfront\.net[^\s]+)/g;
+    const matched = message.match(urlRegex);
+
+    if (!matched || !matched.length) {
+        return '';
+    }
+
+    return matched[0];
+}
+
+const getSecondsFromTimestamp = (timestamp: string): number => {
+    const parts = timestamp.split(':');
+
+    if (parts.length === 2) {
+        return (parseInt(parts[0]) * 60) + parseInt(parts[1]);
+    }
+
+    if (parts.length === 3) {
+        return (parseInt(parts[0]) * 60 * 60) + (parseInt(parts[1]) * 60) + parseInt(parts[2]);
+    }
+
+    return 0;
+}
+
+const getCondensedTimestamp = (timestamp: string): string => {
+    const parts = timestamp.split(':');
+
+    if (parts.length === 2) {
+        return timestamp;
+    }
+
+    if (parts.length === 3) {
+        const minutes = (parseInt(parts[0]) * 60) + parseInt(parts[1]);
+        return `${minutes}:${parts[2]}`;
+    }
+
+    return timestamp;
+}
+
+const parseTimestamps = (message: string): string[] => {
+    return message.match(/([0-9]+:)?[0-9]+:[0-5][0-9]/g) || [];
 }

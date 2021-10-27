@@ -19,6 +19,9 @@ import FileViewOverride, {shouldDisplayFileOverride} from './components/file_vie
 import {playAndShowComments} from './actions';
 import YoutubePlayer from './components/youtube_player';
 
+type URLObject = {url: string};
+type Embed = {embed: URLObject};
+
 export default class Plugin {
     private registry: Registry;
     private store: Store;
@@ -78,12 +81,16 @@ export default class Plugin {
 
         const link = href.substring(prefix.length);
         const [name, query] = link.split('?');
-        const {postID, seekTo, videoID} = parseQueryString(query);
 
         if (name === 'media') {
-            this.store.dispatch(playAndShowComments(postID, seekTo));
+            const {postID, seekTo} = parseQueryString(query);
+            this.store.dispatch(playAndShowComments({postID, seekTo}));
         } else if(name === 'youtube') {
-            this.store.dispatch(playAndShowComments(postID, seekTo, videoID));
+            const {postID, seekTo, videoID} = parseQueryString(query);
+            this.store.dispatch(playAndShowComments({postID, seekTo, videoID}));
+        } else if(name === 'external') {
+            const {postID, seekTo, url} = parseQueryString(query);
+            this.store.dispatch(playAndShowComments({postID, seekTo, url}));
         }
     }
 

@@ -20,8 +20,9 @@ function trimModal(state: TrimModalData = null, action: {type: string; data?: Tr
 
 export type GlobalPlayerData = {
     postID: string;
-    fileInfo: FileInfo;
     seekTo: string;
+    fileInfo?: FileInfo;
+    url?: string;
 } | null
 
 function globalPlayer(state: GlobalPlayerData = null, action: {type: string; data?: GlobalPlayerData}) {

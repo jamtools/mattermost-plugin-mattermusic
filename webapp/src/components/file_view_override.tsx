@@ -71,7 +71,7 @@ export function FileViewOverrideImpl(props: Props) {
     React.useEffect(() => {
         if (props.fileInfo) {
             props.onModalDismissed();
-            props.playAndShowComments(props.post.id)
+            props.playAndShowComments({postID: props.post.id});
         }
     }, [props.fileInfo]);
     return null;

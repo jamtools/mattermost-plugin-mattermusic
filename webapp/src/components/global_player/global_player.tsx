@@ -7,11 +7,10 @@ import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
 
 import {State, GlobalPlayerData} from 'src/reducers';
 import {bindActionCreators} from 'redux';
-import FormButton from '../form_button';
 import {copyTextToClipboard, getTimestampFromSeconds} from '../../util/util';
 import {playAndShowComments} from '../../actions';
 import {Theme} from 'mattermost-redux/types/preferences';
-import {getMimeFromFileInfo} from '../../util/file_types';
+import {getMimeFromFileInfo, getMimeFromURL, Mimes} from '../../util/file_types';
 
 type StateProps<T> = {
     show: boolean;
@@ -90,18 +89,15 @@ const videoDefaultBigPlacement = {
     right: '0px',
 }
 
-enum Mimes {
-    AUDIO = 'audio',
-    VIDEO = 'video',
-}
-
 enum VideoPlayerSize {
     SMALL = 'small',
     BIG = 'big',
 }
 const isVideoSizeSmall = (videoSize: VideoPlayerSize) => videoSize === VideoPlayerSize.SMALL;
 
-export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
+export type GlobalPlayerProps = Props<GlobalPlayerData>;
+
+export function GlobalPlayerImpl(props: GlobalPlayerProps) {
     const playerRef = React.createRef<HTMLAudioElement>();
     const [fileURL, setFileURL] = React.useState('');
 
@@ -126,24 +122,30 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
             });
         },
       })
-    //   return (
-    //     <div ref={dragRef} style={{ opacity }}>
-    //       {'Im the text'}
-    //     </div>
-    //   )
 
     React.useEffect(() => {
         let newFileURL = '';
-        if (props.data && props.data.fileInfo.id) {
+        if (props.data && props.data.fileInfo && props.data.fileInfo.id) {
             newFileURL = `/api/v4/files/${props.data.fileInfo.id}`;
             setFileURL(newFileURL);
             const p = getDefaultPlacement(getMimeFromFileInfo(props.data.fileInfo) as Mimes, videoSize);
             setPlacement(p);
+        } else if (props.data && props.data.url) {
+            setFileURL(props.data.url);
+
+            const mime = getMimeFromURL(props.data.url);
+
+            const p = getDefaultPlacement(mime, videoSize);
+            setPlacement(p);
         }
-    }, [props.data && props.data.fileInfo.id]);
+    }, [props.data && ((props.data.fileInfo && props.data.fileInfo.id) || (props.data.url))]);
 
     React.useEffect(() => {
         setVisible(true);
+
+        if (!props.data) {
+            return;
+        }
         if (playerRef && playerRef.current) {
             const current = playerRef.current as HTMLAudioElement | HTMLVideoElement;
 
@@ -173,7 +175,13 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
         position: 'absolute',
     };
 
-    const mime = getMimeFromFileInfo(props.data.fileInfo);
+
+    let mime = '';
+    if (props.data.fileInfo) {
+        mime = getMimeFromFileInfo(props.data.fileInfo);
+    } else if (props.data.url) {
+        mime = getMimeFromURL(props.data.url);
+    }
 
     const isMobile = window.innerWidth <= 768;
     let style;
@@ -241,7 +249,7 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
     let content = <h1>{`Unsupported mime type ${mime}`}</h1>;
 
     const audioStyle = getStyle(props.theme);
-    if (mime.includes('audio')) {
+    if (mime.includes(Mimes.AUDIO)) {
         content = (
             <audio
                 key={fileURL}
@@ -260,7 +268,7 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
                 />
             </audio>
         );
-    } else if (mime.includes('video')) {
+    } else if (mime.includes(Mimes.VIDEO)) {
         content = (
             <video
                 key={fileURL}
@@ -362,7 +370,7 @@ export function GlobalPlayerImpl(props: Props<GlobalPlayerData>) {
     )
 
     const clickedCommentsButton = () => {
-        props.playAndShowComments(props.data.postID);
+        props.playAndShowComments({postID: props.data.postID});
     }
 
     let commentButtonStyle;
