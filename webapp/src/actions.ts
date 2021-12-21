@@ -2,7 +2,6 @@
 import {GlobalState} from 'mattermost-redux/types/store';
 import {Post} from 'mattermost-redux/types/posts';
 import {DispatchFunc, GetStateFunc} from 'mattermost-redux/types/actions';
-import {Client4} from 'mattermost-redux/client';
 import {getPost, getPostsInThread} from 'mattermost-redux/selectors/entities/posts';
 import {makeGetFilesForPost} from 'mattermost-redux/selectors/entities/files';
 import {FileInfo} from 'mattermost-redux/types/files';
@@ -20,7 +19,11 @@ const ActionTypes = {
     SET_RHS_EXPANDED: 'SET_RHS_EXPANDED',
 }
 
-export function playAndShowComments(postID: string, seekTo?: string) {
+const getFilesForPost = makeGetFilesForPost();
+
+type PlayAndShowCommentsArguments = {postID: string, seekTo?: string, videoID?: string, url?: string};
+
+export function playAndShowComments({postID, seekTo, videoID, url}: PlayAndShowCommentsArguments) {
     return (dispatch: DispatchFunc, getState: GetStateFunc) => {
         const state = getState();
         if (!postID) {
@@ -28,24 +31,34 @@ export function playAndShowComments(postID: string, seekTo?: string) {
         }
         const post = getPost(state, postID);
         if (!post) {
-            alert('no post');
-        }
-
-        Client4.getPost
-
-        const filePostID = post.root_id || post.id;
-        const fileInfos: FileInfo[] = makeGetFilesForPost()(state, filePostID);
-
-        const fileInfo = fileInfos[0];
-        if (fileInfo) {
-            dispatch({
-                type: 'SEEK_GLOBAL_PLAYER',
-                data: {fileInfo, seekTo, postID},
-            });
+            alert('couldnt get post for media');
         }
 
         dispatch(selectPost(post));
-        dispatch(setRhsExpanded(true))
+        dispatch(setRhsExpanded(true));
+
+        if (videoID) {
+            dispatch({
+                type: 'SEEK_EXTERNAL_PLAYER',
+                data: {postID, seekTo, url},
+            });
+        } else if (url) {
+            dispatch({
+                type: 'SEEK_GLOBAL_PLAYER',
+                data: {seekTo, postID, url},
+            });
+        } else {
+            const filePostID = post.root_id || post.id;
+            const fileInfos: FileInfo[] = getFilesForPost(state, filePostID);
+
+            const fileInfo = fileInfos[0];
+            if (fileInfo) {
+                dispatch({
+                    type: 'SEEK_GLOBAL_PLAYER',
+                    data: {fileInfo, seekTo, postID, url},
+                });
+            }
+        }
     }
 }
 

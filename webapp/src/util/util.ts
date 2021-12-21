@@ -13,20 +13,7 @@ export function parseQueryString(query: string): any {
     }, {});
 }
 
-const extensionMap: {[extension: string]: string} = {
-    mp3: 'audio/mp3',
-}
-
-export function getMimeFromFileInfo(fileInfo: FileInfo): string {
-    if (fileInfo.mime_type) {
-        return fileInfo.mime_type;
-    }
-
-    const extension = fileInfo.extension;
-    return extensionMap[extension];
-}
-
-function fallbackCopyTextToClipboard(text) {
+function fallbackCopyTextToClipboard(text: string) {
     const textArea = document.createElement('textarea');
     textArea.value = text;
 
@@ -82,4 +69,15 @@ export function getTimestampFromSeconds(seconds: number) {
     }
 
     return `${minuteStr}:${secondStr}`;
+}
+
+export function getSecondsFromTimestamp(timestamp: string): number {
+    if(!timestamp) {
+        return 0;
+    }
+
+    const [minuteStr, secondsStr] = timestamp.split(':');
+    const minutes = parseInt(minuteStr);
+    const seconds = parseInt(secondsStr);
+    return minutes*60 + seconds;
 }

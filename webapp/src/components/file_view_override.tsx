@@ -7,6 +7,7 @@ import {Post} from 'mattermost-redux/types/posts';
 
 import {playAndShowComments} from '../actions';
 import {State} from '../reducers';
+import {getMimeFromFileInfo} from '../util/file_types';
 
 /**
     * Register a component to override file previews. Accepts a function to run before file is
@@ -52,8 +53,12 @@ const FileViewOverride = connect(config.state, config.dispatch)(FileViewOverride
 export default FileViewOverride;
 
 export const shouldDisplayFileOverride = (fileInfo: FileInfo, post: Post) => {
-    // let mime = fileInfo.mime_type
-    return fileInfo.mime_type.includes('audio') || fileInfo.mime_type.includes('video');
+    if (!fileInfo) {
+        return false
+    }
+
+    const mime = getMimeFromFileInfo(fileInfo);
+    return mime.includes('audio') || mime.includes('video');
 }
 
 type Props = {
@@ -66,7 +71,7 @@ export function FileViewOverrideImpl(props: Props) {
     React.useEffect(() => {
         if (props.fileInfo) {
             props.onModalDismissed();
-            props.playAndShowComments(props.post.id)
+            props.playAndShowComments({postID: props.post.id});
         }
     }, [props.fileInfo]);
     return null;
