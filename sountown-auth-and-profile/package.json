@@ -10,16 +10,12 @@
   },
   "dependencies": {
     "formik": "^2.2.9",
-    "howler": "^2.2.3",
     "jotai": "^1.7.7",
-    "raf": "^3.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-howler": "^5.2.0",
     "react-router-dom": "^6.3.0",
-    "recoil": "^0.7.4",
     "swiper": "^8.3.2",
-    "use-sound": "^4.0.1",
     "yup": "^0.32.11"
   },
   "devDependencies": {

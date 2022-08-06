@@ -16,7 +16,7 @@ const Playlist = ({ id, name, lists }) => {
             {name}
           </h3>
           <Link to="/profile/playlists">
-            <div className="text-gray text-sm hover:opacity-80 px-2 py-1 rounded-md transition">See All</div>
+            <div className="text-gray text-sm hover:opacity-80 px-2 py-1 rounded-md transition pr-0 md:pr-5">See All</div>
           </Link>
         </div>
       </div>
