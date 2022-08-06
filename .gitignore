@@ -5,5 +5,5 @@ dist
 
 # VSCode
 .vscode
-
+node_modules
 webapp/storybook-static
