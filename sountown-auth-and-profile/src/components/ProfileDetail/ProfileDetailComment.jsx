@@ -56,12 +56,6 @@ const ProfileDetailComment = () => {
   }, [soundCommentRef])
 
   useEffect(() => {
-    setTimeout(() => {
-      if(url) setDuration(soundCommentRef.current?.howler?._duration)
-    }, 1200);
-  }, [isPlaying])
-
-  useEffect(() => {
     if(!isSeeking && isPlaying) soundCommentRef.current.seek(seek)
   }, [isSeeking])
 
@@ -118,7 +112,7 @@ const ProfileDetailComment = () => {
                       {comment.withShare?.data.title}
                     </h4>
                     <time className="text-sm text-gray">
-                      {secondsToMinutes(seek)} {duration ? "/ "+secondsToMinutes(duration) : ''}
+                      {secondsToMinutes(seek)} / {secondsToMinutes(comment.withShare?.data.duration)}
                     </time>
                     <div className="flex items-center gap-3 mt-3 w-full md:w-2/3">
                       <button onClick={() => playSound(comment.withShare?.data)} className="rounded-full h-6 w-7 flex items-center justify-center hover:opacity-80 transition" aria-label="play_pause">

@@ -9,7 +9,7 @@ const Profile = () => {
 
   return (
     <div className="relative flex flex-col lg:flex-row">
-      <aside className={`w-full lg:w-[350px] lg:sticky top-0 h-full bg-secondary ${location.pathname === '/profile' ? 'block' : 'hidden lg:block'}`}>
+      <aside className={`w-full lg:w-[350px] lg:sticky top-0 lg:h-screen bg-secondary ${location.pathname === '/profile' ? 'block' : 'hidden lg:block'}`}>
         <ProfileDescription />
       </aside>
       <main className="w-full lg:w-[calc(100vw-350px)]">

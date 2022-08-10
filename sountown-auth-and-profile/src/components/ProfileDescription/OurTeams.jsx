@@ -24,7 +24,7 @@ const OurTeams = ({ teams }) => {
   }, []);
   
   return (
-    <div>
+    <div className="pb-5">
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-lg font-medium  ">
           Our Teams

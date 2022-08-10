@@ -10,7 +10,7 @@ module.exports = {
     },
     extend: {
       colors: {
-        primary: "#30B561",
+        primary: "var(--primary-color)", // provide from style in index.html
         secondary: "#181818",
         black: "#121212",
         danger: "#FF6464",

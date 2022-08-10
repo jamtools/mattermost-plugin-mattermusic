@@ -7,12 +7,12 @@ import { PlayIcon, PauseIcon } from "@/components/icons/IconSoundPlayer";
 import SoundSeekSlider from "../atom/SoundSeekSlider";
 
 import { 
+  soundId,
   soundTitle, 
   soundAuthor, 
   soundUrl, 
   soundDuration, 
   soundIsPlaying, 
-  soundMuted, 
   soundSeek 
 } from '@/store/soundplay';
 
@@ -25,6 +25,7 @@ const ProfileDetailDescription = () => {
 
   const [musicDetail, setMusicDetail] = useState(null)
 
+  const [id, setId] = useAtom(soundId)
   const [title, setTitle] = useAtom(soundTitle)
   const [author, setAuthor] = useAtom(soundAuthor)
   const [url, setUrl] = useAtom(soundUrl)
@@ -33,7 +34,6 @@ const ProfileDetailDescription = () => {
   const [isPlaying, setIsPlaying] = useAtom(soundIsPlaying)
   const [isCommentPlaying, setIsCommentPlaying] = useAtom(soundCommentIsPlaying)
   const [duration, setDuration] = useAtom(soundDuration)
-  const [muted, setMuted] = useAtom(soundMuted)
 
   const [isSoundSame, setIsSoundSame] = useState(false)
 
@@ -44,8 +44,8 @@ const ProfileDetailDescription = () => {
 
 
   useEffect(() => {
-    if(musicDetail?.musicUrl) {
-      if(url == musicDetail?.musicUrl) {
+    if(musicDetail?.id) {
+      if(id == musicDetail?.id) {
         setIsSoundSame(true)
       } else {
         setIsSoundSame(false)
@@ -56,8 +56,10 @@ const ProfileDetailDescription = () => {
   const playSound = () => {
     if(url !== musicDetail?.musicUrl) {
       setSeek(0)
+      setId(musicDetail?.id)
       setTitle(musicDetail?.title)
       setAuthor(musicDetail?.author)
+      setDuration(musicDetail?.duration)
       setUrl(musicDetail?.musicUrl)
       setIsPlaying(false)
     }

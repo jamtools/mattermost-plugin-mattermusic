@@ -12,6 +12,10 @@ input:-webkit-autofill:active {
 }
 
 
+html {
+  @apply scroll-smooth
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }

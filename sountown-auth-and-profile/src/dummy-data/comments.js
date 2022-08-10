@@ -3,7 +3,6 @@ import team1 from "@/assets/images/team-1.png";
 import team2 from "@/assets/images/team-2.png";
 import team3 from "@/assets/images/team-3.png";
 import team4 from "@/assets/images/team-4.png";
-import sound1 from '@/assets/Evanescence - Bring Me To Life.mp3'
 
 export const comments = [
   {
@@ -53,8 +52,9 @@ export const comments = [
     withShare: {
       type: 'sound',
       data: {
-        title: 'Bring Me to life - Evanescence',
-        sound: sound1
+        title: 'Cantina Band',
+        sound:'https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand60.wav',
+        duration: 60
       } 
     }
   },

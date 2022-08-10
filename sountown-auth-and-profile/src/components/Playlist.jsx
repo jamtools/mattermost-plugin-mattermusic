@@ -1,85 +1,89 @@
-// import Swiper core and required modules
-import { Navigation } from 'swiper';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import { ArrowRight } from "./icons/IconArrows";
-import { Link } from "react-router-dom";
+import { useAtom } from "jotai";
 
+import {posts} from '../dummy-data/posts'
 
-const Playlist = ({ id, name, lists }) => {
+import { 
+  soundId,
+  soundTitle, 
+  soundAuthor, 
+  soundDuration,
+  soundUrl, 
+  soundIsPlaying,
+  soundSeek 
+} from '@/store/soundplay'; 
+import { useState } from "react";
+import { PlayIcon } from "./icons/IconSoundPlayer";
+import { soundCommentIsPlaying } from "../store/soundplay_comment";
+import secondsToMinutes from "../utils/secondsToMinutes";
+
+const Playlist = () => {
+
+  const [id, setId] = useAtom(soundId)
+  const [title, setTitle] = useAtom(soundTitle)
+  const [author, setAuthor] = useAtom(soundAuthor)
+  const [duration, setDuration] = useAtom(soundDuration)
+  const [url, setUrl] = useAtom(soundUrl)
+  
+  const [seek, setSeek] = useAtom(soundSeek)
+  const [isPlaying, setIsPlaying] = useAtom(soundIsPlaying)
+
+  const [isSoundSame, setIsSoundSame] = useState(false)
+  const [isCommentPlaying, setIsCommentPlaying] = useAtom(soundCommentIsPlaying)
+
+  const playSound = (data) => {
+    if(id !== data?.id) {
+      setSeek(0)
+      setId(data?.id)
+      setTitle(data?.title)
+      setAuthor(data?.author)
+      setDuration(data?.duration)
+      setUrl(data?.musicUrl)
+    }
+    setIsSoundSame(true)
+    setIsPlaying(true)
+    setIsCommentPlaying(false)
+  }
 
   return (
-    <section className="w-full pt-7 pb-14 pr-5 md:pr-0">
-      <div className="mb-5">
-        <div className='flex items-center justify-between'>
-          <h3 className="text-2xl font-medium mb-1">
-            {name}
-          </h3>
-          <Link to="/profile/playlists">
-            <div className="text-gray text-sm hover:opacity-80 px-2 py-1 rounded-md transition pr-0 md:pr-5">See All</div>
-          </Link>
-        </div>
+    <div id="playlist" className="pt-10  max-w-screen-md">
+      <h3 className="text-2xl font-medium mb-5">
+        Playlist
+      </h3>
+      <div className="-ml-3 lg:ml-0">
+        <header className="grid grid-cols-12 gap-1 bg-dark py-2 pl-2 lg:pl-1 pr-10 text-sm lg:text-base">
+          <div className="col-span-1"></div>
+          <div className="pl-2 lg:pl-1 col-span-10 lg:col-span-7">Name</div>
+          <div className="hidden lg:block col-span-3">Composer</div>
+          <div className="col-span-1">Time</div>
+        </header>
+        <ul className="bg-secondary divide-y divide-dark pb-36 lg:pb-0">
+          {
+            posts.map((post, i) => (
+              <li onClick={() => playSound(post)} className="grid grid-cols-12 items-center gap-1 py-4 pl-2 lg:pl-1 pr-10 cursor-pointer hover:bg-dark/30 transition" key={post.id}>
+                <div className="col-span-1 justify-self-center text-sm lg:text-base">
+                  {post.id === id ? (
+                    <div className="bg-primary rounded-full w-5 lg:w-6 h-5 lg:h-6 p-1.5 flex items-center justify-center">
+                      <PlayIcon/>
+                    </div>
+                  ) : String(++i).padStart(2, '0')}
+                </div>
+                <div className={`pl-2 lg:pl-1 col-span-10 lg:col-span-7 text-sm lg:text-base ${post.id === id && 'text-primary'}`}>
+                  <div className="truncate">{post.title}</div>
+                  <div className="lg:hidden text-xs opacity-50 mt-0.5">{post.author}</div>
+                </div>
+                <div className="hidden lg:block col-span-3">
+                  {post.author}
+                </div>
+                <div className="col-span-1 text-sm lg:text-base">
+                  {secondsToMinutes(post.duration)}
+                </div>
+              </li>
+            ))
+          }
+        
+        </ul>
       </div>
-
-      {/* Desktop View */}
-      <Swiper
-        modules={[Navigation]}
-        spaceBetween={50}
-        slidesPerView={1}
-        breakpoints={{
-          768: {
-            slidesPerView: 2
-          },
-          980: {
-            slidesPerView: 3
-          },
-          1280: {
-            slidesPerView: 4
-          },
-
-        }}
-        navigation={{
-          prevEl: `.playlist-slider-prev-${id}`,
-          nextEl: `.playlist-slider-next-${id}`,
-
-        }}
-        className="relative pr-32 hidden md:block"
-      >
-        {lists.map((list) => (
-          <SwiperSlide key={list.id}>
-            <Link to={`/profile/detail/${list.id}`}>
-              <img src={list.coverImage} alt="playlist cover" />
-              <div className="mt-5">
-                <h4 className="text-xl font-medium">{list.title}</h4>
-                <p className="text-gray">{list.author}</p>
-              </div>
-            </Link>
-          </SwiperSlide>
-        ))}
-        <button className={`playlist-slider-prev-${id} absolute top-1/2 -translate-y-1/2 left-10 z-10 bg-primary p-4 rounded-md`} aria-label="prev">
-          <ArrowRight className="rotate-180"/>
-        </button>
-        <button className={`playlist-slider-next-${id} absolute top-1/2 -translate-y-1/2 right-10 z-10 bg-primary p-4 rounded-md`} aria-label="next">
-          <ArrowRight/>
-        </button>
-      </Swiper>
-
-      {/* Mobile View */}
-      <div className="md:hidden flex flex-col gap-10">
-        {lists.map((list) => (
-          <Link to={`/profile/detail/${list.id}`} key={list.id}>
-            <div className='flex items-center gap-5' >
-              <img className='aspect-square w-1/3'  src={list.coverImage} alt="playlist cover" />
-              <div className="mt-5">
-                <h4>{list.title}</h4>
-                <p className="text-sm text-gray">{list.author}</p>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-    </section>
+    </div>
   )
 }
 

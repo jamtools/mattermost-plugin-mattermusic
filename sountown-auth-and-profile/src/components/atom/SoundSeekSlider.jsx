@@ -23,7 +23,7 @@ const SoundSeekSlider = ({size, rounded, currentTime = 0, length = 100, onSeek, 
     isComment ? setIsCommentSeeking(true) : setIsSeeking(true)
   }
   
-  const onMouseLeave = () => {
+  const onTouchLeave = () => {
     isComment ? setIsCommentSeeking(false) : setIsSeeking(false)
     onSeek((value/100)*length)
   }
@@ -34,7 +34,8 @@ const SoundSeekSlider = ({size, rounded, currentTime = 0, length = 100, onSeek, 
       <input 
         ref={seekRef} 
         onInput={onSeeking} 
-        onMouseUp={onMouseLeave} 
+        onMouseUp={onTouchLeave}
+        onTouchEnd={onTouchLeave}
         disabled={disabled} 
         type="range" 
         min="0" 

@@ -19,7 +19,7 @@ const ProfileDescription = () => {
         <img src={profileImage} className="-mt-16 ml-5 w-[120px] h-[120px] rounded-full overflow-hidden object-cover" alt="profile" />
       </div>
 
-      <div className="px-5 pt-7">
+      <div className="px-3 lg:px-5 pt-7">
         <div>
           <h1 className=" text-lg font-medium">
             Andre Rio
@@ -30,9 +30,9 @@ const ProfileDescription = () => {
         </div>
 
         <div className="py-10 flex items-center gap-5">
-          <button className="w-28 py-3 rounded-md bg-primary text-center" aria-label="play">
+          <a href="#playlist" className="w-28 py-3 rounded-md bg-primary text-center" aria-label="play">
             Play
-          </button>
+          </a>
           <a href="#" className="w-28 py-3 rounded-md border border-gray text-center">
             Follow Us
           </a>

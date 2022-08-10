@@ -1,5 +1,7 @@
 import { atom } from "jotai";
 
+
+export const soundId = atom('');
 export const soundTitle = atom('');
 export const soundAuthor = atom('');
 export const soundUrl = atom('');
