@@ -159,6 +159,7 @@ const ProfileDetailComment = () => {
           playing={isPlaying}
           ref={(ref) => soundCommentRef.current = ref}
           onEnd={() => {setIsPlaying(false)}}
+          html5={true}
         />
       )}
 
