@@ -12,7 +12,7 @@ import {
   soundSeek 
 } from '@/store/soundplay'; 
 import { useState } from "react";
-import { PlayIcon } from "./icons/IconSoundPlayer";
+import { PauseIcon, PlayIcon } from "./icons/IconSoundPlayer";
 import { soundCommentIsPlaying } from "../store/soundplay_comment";
 import secondsToMinutes from "../utils/secondsToMinutes";
 
@@ -63,7 +63,7 @@ const Playlist = () => {
                 <div className="col-span-1 justify-self-center text-sm lg:text-base">
                   {post.id === id ? (
                     <div className="bg-primary rounded-full w-5 lg:w-6 h-5 lg:h-6 p-1.5 flex items-center justify-center">
-                      <PlayIcon/>
+                      {isPlaying ? <PauseIcon /> : <PlayIcon />}
                     </div>
                   ) : String(++i).padStart(2, '0')}
                 </div>
