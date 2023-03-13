@@ -19,6 +19,8 @@ import FileViewOverride, {shouldDisplayFileOverride} from './components/file_vie
 import {playAndShowComments} from './actions';
 import YoutubePlayer from './components/youtube_player';
 
+import './styles.css';
+
 type URLObject = {url: string};
 type Embed = {embed: URLObject};
 
