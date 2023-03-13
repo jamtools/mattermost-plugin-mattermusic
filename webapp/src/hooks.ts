@@ -105,8 +105,8 @@ const makeMediaTimestampLink = (post: Post, timestamp: string): string => {
 const makeYoutubeTimestampLink = (post: Post, timestamp: string): string => {
     const vid = getYoutubeVideoID(post.message);
     const seconds = getSecondsFromTimestamp(timestamp);
-    return `[${timestamp}](https://youtube.com/watch?v=${vid}?t=${seconds})`;
-    // return `[${timestamp}](mattermusic://youtube?postID=${post.id}&seekTo=${timestamp}&videoID=${vid})`;
+    // return `[${timestamp}](https://youtube.com/watch?v=${vid}?t=${seconds})`;
+    return `[${timestamp}](mattermusic://youtube?postID=${post.id}&seekTo=${timestamp}&videoID=${vid})`;
 }
 
 export const getYoutubeVideoID = (message: string) => {

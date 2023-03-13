@@ -97,7 +97,9 @@ export default class Plugin {
     initYoutube = () => {
         setTimeout(() => {
             const tag = document.createElement('script');
-            tag.src = "https://www.youtube.com/iframe_api";
+            tag.src = "";
+            // tag.src = "https://www.youtube.com/iframe_api";
+            tag.src = "/plugins/mattermusic/assets/iframe_api";
             const firstScriptTag = document.getElementsByTagName('script')[0];
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 

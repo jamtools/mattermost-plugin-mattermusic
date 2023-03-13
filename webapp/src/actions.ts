@@ -39,8 +39,8 @@ export function playAndShowComments({postID, seekTo, videoID, url}: PlayAndShowC
 
         if (videoID) {
             dispatch({
-                type: 'SEEK_EXTERNAL_PLAYER',
-                data: {postID, seekTo, url},
+                type: 'SEEK_YOUTUBE_PLAYER',
+                data: {postID, seekTo, videoID},
             });
         } else if (url) {
             dispatch({

@@ -129,7 +129,7 @@ export function YoutubePlayerImpl(props: Props<YoutubePlayerData>) {
         console.log('LINK SEEKTO')
         info.player.seekTo(seconds, true);
         console.log('I wonder what happened');
-    }, [props.data]);
+    }, [props.data, getPlayerAndInfo]);
 
     React.useEffect(() => {
         (async () => {
@@ -158,6 +158,11 @@ export function YoutubePlayerImpl(props: Props<YoutubePlayerData>) {
                 const info = getPlayerAndInfo.func();
                 if (info.data.postID !== props.data.postID) {
                     lookForThumbnail = true;
+                } else {
+                    const info = getPlayerAndInfo.func();
+                    if (info.player.seekTo) {
+                        return;
+                    }
                 }
             }
 
@@ -176,7 +181,7 @@ export function YoutubePlayerImpl(props: Props<YoutubePlayerData>) {
             }
 
             const newID = `rhsContainer-${props.data.videoID}`;
-            const originalSelector = `#rhsContainer #${props.data.videoID}`;
+            const originalSelector = `#rhsContainer iframe`;
             let el = document.querySelector(originalSelector);
             if (!el) {
                 el = document.getElementById(newID);
@@ -209,7 +214,7 @@ export function YoutubePlayerImpl(props: Props<YoutubePlayerData>) {
 
                         console.log('ONREADY SEEKTO')
                         player.seekTo(seconds, true);
-                    },
+    },
                 }
             });
         })();
