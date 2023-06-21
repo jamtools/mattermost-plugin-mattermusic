@@ -1,0 +1,19 @@
+#UpgradeButton {
+    display: none;
+}
+
+div[class^="CenterControlsContainer"] {
+    margin-left: -15%;
+    margin-right: 15%;
+}
+
+/* audio::-webkit-media-controls-play-button,
+audio::-webkit-media-controls-panel {
+    background-color: var(--center-channel-bg);
+    color: #fff;
+} */
+
+.global-player-container {
+    /* max-width: 500px;
+    min-width: 30%; */
+}

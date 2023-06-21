@@ -35,6 +35,9 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		// return
 	}
 	switch r.URL.Path {
+	case "/assets/iframe_api", "/assets/iframe_widget_api.js":
+		p.handleAssets(w, r)
+		return
 	case "/projects":
 		switch r.Method {
 		case http.MethodGet:

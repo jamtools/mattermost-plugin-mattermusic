@@ -75,8 +75,8 @@ const getDefaultPlacement = (mime: Mimes, videoSize?:VideoPlayerSize): any => {
 }
 
 const audioDefaultPlacement = {
-    top: '65px',
-    right: '90px',
+    top: '2px',
+    right: '195px',
 }
 
 const videoDefaultPlacement = {
@@ -184,13 +184,16 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
     }
 
     const isMobile = window.innerWidth <= 768;
+    const isVideo = mime.includes(Mimes.VIDEO);
+    const isAudio = mime.includes(Mimes.AUDIO);
+
     let style;
     // break this out into two components. mobile and web
     if (isMobile) {
         style = {
             width: '100%',
             zIndex: 1000,
-            position: 'absolute',
+            position: 'fixed',
         };
         if (mobilePlacement === MobilePlacement.TOP) {
             style = {
@@ -212,14 +215,17 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
             right: '10px',
         };
     } else {
-        let width = '650px'
-        if (mime.includes(Mimes.VIDEO)) {
-            width = isVideoSizeSmall(videoSize) ? '400px' : '700px';
-        }
+        const extra = isAudio ? {
+            maxWidth: '500px',
+            minWidth: '34%',
+        } : {
+            width: isVideoSizeSmall(videoSize) ? '400px' : '700px',
+        };
+
         style = {
-            width,
             zIndex: 1000,
-            position: 'absolute',
+            position: 'fixed',
+            ...extra,
             ...placement,
         };
         closeButtonStyle = {
@@ -254,8 +260,9 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
             <audio
                 key={fileURL}
                 style={{
-                    width: '100%',
                     ...audioStyle,
+                    width: '100%',
+                    height: '37px',
                 }}
                 id={'global-player'}
                 controls={true}
@@ -268,7 +275,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
                 />
             </audio>
         );
-    } else if (mime.includes(Mimes.VIDEO)) {
+    } else if (isVideo) {
         content = (
             <video
                 key={fileURL}
@@ -288,12 +295,13 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
 
     const extraButtons = [];
     if (!isMobile && visible) {
-        const changeVideoSize = () => {
+        const changeVideoSize = (e) => {
+            e.stopPropagation();
             const newVideoSize = isVideoSizeSmall(videoSize) ? VideoPlayerSize.BIG : VideoPlayerSize.SMALL;
             setVideoSize(newVideoSize);
             setPlacement(getDefaultPlacement(Mimes.VIDEO, newVideoSize));
         };
-        if (mime.includes(Mimes.VIDEO)) {
+        if (isVideo) {
             extraButtons.push(
                 <div
                     key={'size'}
@@ -346,36 +354,39 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
         copyTextToClipboard(timeStr);
     }
 
-    let timeStampButtonStyle;
-    if (isMobile) {
-        timeStampButtonStyle = {top: '0px', right: '180px'};
-    } else {
-        timeStampButtonStyle = {top: '-20px', left: '210px'};
-    }
+    // let timeStampButtonStyle;
+    // if (isMobile) {
+    //     timeStampButtonStyle = {top: '0px', right: '180px'};
+    // } else {
+    //     timeStampButtonStyle = {top: '-20px', left: '210px'};
+    // }
 
-    extraButtons.push(
-        <div
-            key={'timestamps-link'}
-            style={{
-                ...closeButtonStyle,
-                ...timeStampButtonStyle,
-            }}
-        >
-            <a
-                onClick={clickedTimestampGen}
-            >
-                {'Timestamp'}
-            </a>
-        </div>
-    )
+    // extraButtons.push(
+    //     <div
+    //         key={'timestamps-link'}
+    //         style={{
+    //             ...closeButtonStyle,
+    //             ...timeStampButtonStyle,
+    //         }}
+    //     >
+    //         <a
+    //             onClick={clickedTimestampGen}
+    //         >
+    //             {'Timestamp'}
+    //         </a>
+    //     </div>
+    // )
 
-    const clickedCommentsButton = () => {
+    const clickedCommentsButton = (e) => {
+        e.stopPropagation();
         props.playAndShowComments({postID: props.data.postID});
     }
 
     let commentButtonStyle;
     if (isMobile) {
         commentButtonStyle = {top: '0px', right: '110px'};
+    } else if (isVideo) {
+        commentButtonStyle = {top: '-20px', left: '130px'};
     } else {
         commentButtonStyle = {top: '-20px', left: '130px'};
     }
@@ -390,7 +401,8 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
             <a
                 onClick={clickedCommentsButton}
             >
-                {'Comments'}
+                {/* {'Comments'} */}
+                <i className='fa fa-comment'></i>
             </a>
         </div>
     )
@@ -416,13 +428,19 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
             </div> */}
             {!isMobile && (
                 <>
-                    <div style={closeButtonStyle}>
-                        <a
-                            onClick={() => setVisible(!visible)}
-                        >
-                            {visible ? 'Hide' : 'Show'}
-                        </a>
-                    </div>
+                    {isVideo && (
+                        <div style={closeButtonStyle}>
+                            <a
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setVisible(!visible)
+                                }}
+                            >
+                                {visible ? 'Hide' : 'Show'}
+                            </a>
+                        </div>
+                    )}
                     {extraButtons}
                 </>
             )}

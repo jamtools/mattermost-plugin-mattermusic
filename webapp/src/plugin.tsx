@@ -19,6 +19,8 @@ import FileViewOverride, {shouldDisplayFileOverride} from './components/file_vie
 import {playAndShowComments} from './actions';
 import YoutubePlayer from './components/youtube_player';
 
+import './styles.css';
+
 type URLObject = {url: string};
 type Embed = {embed: URLObject};
 
@@ -97,7 +99,9 @@ export default class Plugin {
     initYoutube = () => {
         setTimeout(() => {
             const tag = document.createElement('script');
-            tag.src = "https://www.youtube.com/iframe_api";
+            tag.src = "";
+            // tag.src = "https://www.youtube.com/iframe_api";
+            tag.src = "/plugins/mattermusic/assets/iframe_api";
             const firstScriptTag = document.getElementsByTagName('script')[0];
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 

@@ -1,4 +1,6 @@
 dist
+.env
+mm-logs
 
 # Mac
 .DS_Store
