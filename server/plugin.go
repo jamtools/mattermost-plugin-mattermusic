@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/pkg/errors"
 )
 
@@ -105,18 +105,7 @@ func (p *Plugin) handleCreateProject(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-// handleTrim trims an audio file based on start and end params
-func (p *Plugin) handleTrim(w http.ResponseWriter, r *http.Request) {
-	data, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Error marshaling project response: "+err.Error())
-		return
-	}
-
-	// r.ParseMultipartForm(0)
-	// file := r.Form.Get("file")
-
-	w.WriteHeader(200)
-	w.Write(data)
+func writeErr(w http.ResponseWriter, status int, err error) {
+	w.WriteHeader(status)
+	w.Write([]byte(err.Error()))
 }
