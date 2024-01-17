@@ -14,6 +14,7 @@ import (
 )
 
 const mp3AudioPreset = "1351620000001-300040"
+const TRIMMER_PIPELINE_NAME = "Mattermusic Trimming"
 
 type TrimResponse struct {
 	Err     error
@@ -32,9 +33,7 @@ func Trim(logger *logrus.Logger, transcoder Transcoder, s3Path string, start, en
 	bucket := "your-input-bucket"
 	roleArn := "your-role-arn"
 
-	pipelineName := "Mattermusic Trimming"
-
-	pipelineID, err := getOrCreatePipeline(transcoder, bucket, roleArn, pipelineName)
+	pipelineID, err := getOrCreatePipeline(transcoder, TRIMMER_PIPELINE_NAME, bucket, roleArn)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to get or create pipeline")
 	}
@@ -125,7 +124,16 @@ func createTranscodeJob(transcoder Transcoder, pipelineID, inputKey, outputKey s
 }
 
 func getOrCreatePipeline(transcoder Transcoder, pipelineName, bucket, roleArn string) (string, error) {
-	transcoder.ListPipelines(&elastictranscoder.ListPipelinesInput{})
+	pipeOut, err := transcoder.ListPipelines(&elastictranscoder.ListPipelinesInput{})
+	if err != nil {
+		return "", errors.Wrap(err, "failed to list pipelines")
+	}
+
+	for _, pipeline := range pipeOut.Pipelines {
+		if *pipeline.Name == pipelineName {
+			return *pipeline.Id, nil
+		}
+	}
 
 	params := &elastictranscoder.CreatePipelineInput{
 		InputBucket:  aws.String(bucket),
