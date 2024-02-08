@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Remove background white when select input autocomplete */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-transition: "color 9999s ease-out, background-color 9999s ease-out";
+    -webkit-transition-delay: 9999s;
+}
+
+
+html {
+  @apply scroll-smooth
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  @apply bg-dark
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  @apply bg-primary
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  @apply opacity-90
+}
+
+.swiper-button-disabled {
+    @apply !hidden
+}
+
+.swiper-button-lock {
+    @apply hidden
+}
+
+.seek-sound-player {
+  @apply appearance-none w-full h-1 bg-transparent
+}
+
+.seek-sound-player::-webkit-slider-thumb {
+  @apply appearance-none shadow-[0_0_0_5px_#121212] lg:shadow-[0_0_0_7px_#121212] bg-white w-4 h-4 rounded-full
+}
+
+.seek-sound-player.small::-webkit-slider-thumb {
+  @apply shadow-[0_0_0_5px_#121212] bg-white w-4 h-4 rounded-full transition-all duration-300
+}
+
+.seek-sound-player::-webkit-slider-runnable-track  {
+  @apply appearance-none shadow-none border-none bg-transparent
+}
