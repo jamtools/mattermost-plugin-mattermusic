@@ -21,11 +21,13 @@ import {getMimeFromFileInfo} from '../util/file_types';
 */
 
 type StateProps = {
+
     // post: Post;
     // fileID: string;
 };
 
 type DispatchProps = {
+
     // showSeekTimestamps: (fileID: string, timestamps: string[]) => void;
     playAndShowComments: (postID: string, seekTo?: string) => void;
 };
@@ -42,24 +44,24 @@ export type ConnectConfig<T> = {
     dispatch(dispatch: (action: Action) => any): any;
 }
 export const config = {
-    state: (state: State, ownProps: {postId: string}) => {
-    },
+    state: null,
     dispatch: (dispatch) => bindActionCreators({
         playAndShowComments,
     }, dispatch),
-}
+};
 
 const FileViewOverride = connect(config.state, config.dispatch)(FileViewOverrideImpl);
 export default FileViewOverride;
 
 export const shouldDisplayFileOverride = (fileInfo: FileInfo, post: Post) => {
+    debugger;
     if (!fileInfo) {
-        return false
+        return false;
     }
 
     const mime = getMimeFromFileInfo(fileInfo);
     return mime.includes('audio') || mime.includes('video');
-}
+};
 
 type Props = {
     fileInfo: FileInfo;
@@ -69,6 +71,7 @@ type Props = {
 
 export function FileViewOverrideImpl(props: Props) {
     React.useEffect(() => {
+        debugger;
         if (props.fileInfo) {
             props.onModalDismissed();
             props.playAndShowComments({postID: props.post.id});

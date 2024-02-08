@@ -41,6 +41,7 @@ export default class FormButton extends PureComponent<any> {
             );
         } else {
             contents = props.children;
+
             // contents = defaultMessage;
         }
 

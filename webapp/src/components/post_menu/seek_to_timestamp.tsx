@@ -1,10 +1,11 @@
 import React from 'react';
 
-import {State, GlobalPlayerData} from 'src/reducers';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import {getPost} from 'mattermost-redux/selectors/entities/posts';
 import {Post} from 'mattermost-redux/types/posts';
+
+import {State, GlobalPlayerData} from 'src/reducers';
 import {selectPost} from '../../actions';
 
 type StateProps = {
@@ -56,18 +57,19 @@ export const config = {
         }),
         openRHS: selectPost,
     }, dispatch),
-}
+};
 
 const SeekToTimestampPostMenuAction = connect(config.state, config.dispatch)(SeekToTimestampPostMenuActionImpl);
 export default SeekToTimestampPostMenuAction;
 
 export function SeekToTimestampPostMenuActionImpl(props: Props) {
-    const timestamps = props.post.message.split(' ').map(word => word.match(/([0-9]*):([0-9]*)/)).filter(Boolean).map(t => t[0]);
+    const timestamps = props.post.message.split(' ').map((word) => word.match(/([0-9]*):([0-9]*)/)).filter(Boolean).map((t) => t[0]);
 
     const onClick = () => {
         props.showSeekTimestamps(props.fileID, timestamps);
+
         // props.openRHS(props.post);
-    }
+    };
 
     const content = (
         <button

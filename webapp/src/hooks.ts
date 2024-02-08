@@ -11,10 +11,11 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {Store, FileHookResponse} from "./util/plugin_registry";
-import {Post} from "mattermost-redux/types/posts";
-import {getPost} from "mattermost-redux/selectors/entities/posts";
-import {postHasMedia} from "./selectors";
+import {Post} from 'mattermost-redux/types/posts';
+import {getPost} from 'mattermost-redux/selectors/entities/posts';
+
+import {Store, FileHookResponse} from './util/plugin_registry';
+import {postHasMedia} from './selectors';
 
 export default class Hooks implements IHooks {
     constructor(private store: Store) {}
@@ -26,14 +27,14 @@ export default class Hooks implements IHooks {
                 files,
                 upload,
             },
-        })
+        });
 
         // setTimeout(() => upload(files), 1000);
         return {
             message: '',
             files: [],
         };
-    }
+    };
 
     /**
         * Register a hook that will be called before a message is formatted into Markdown.
@@ -79,7 +80,7 @@ export default class Hooks implements IHooks {
             return timestamps.reduce((accum: string, timestamp: string): string => {
                 const link = makeYoutubeTimestampLink(mediaPost, timestamp);
                 return accum.replace(timestamp, link);
-            }, message)
+            }, message);
         }
 
         if (cloudFrontLink.length) {
@@ -88,11 +89,11 @@ export default class Hooks implements IHooks {
             return timestamps.reduce((accum: string, timestamp: string): string => {
                 const link = makeCloudFrontTimestampLink(mediaPost, cloudFrontLink, timestamp);
                 return accum.replace(timestamp, link);
-            }, message)
+            }, message);
         }
 
         return message;
-    }
+    };
 }
 
 const makeMediaTimestampLink = (post: Post, timestamp: string): string => {
@@ -100,14 +101,15 @@ const makeMediaTimestampLink = (post: Post, timestamp: string): string => {
     const condensed = getCondensedTimestamp(timestamp);
 
     return `[${timestamp}](mattermusic://media?postID=${post.id}&seekTo=${condensed})`;
-}
+};
 
 const makeYoutubeTimestampLink = (post: Post, timestamp: string): string => {
     const vid = getYoutubeVideoID(post.message);
     const seconds = getSecondsFromTimestamp(timestamp);
+
     // return `[${timestamp}](https://youtube.com/watch?v=${vid}?t=${seconds})`;
     return `[${timestamp}](mattermusic://youtube?postID=${post.id}&seekTo=${timestamp}&videoID=${vid})`;
-}
+};
 
 export const getYoutubeVideoID = (message: string) => {
     const r = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\? ]*).*/;
@@ -117,7 +119,7 @@ export const getYoutubeVideoID = (message: string) => {
     }
 
     return matched[1];
-}
+};
 
 const makeCloudFrontTimestampLink = (post: Post, cloudFrontLink: string, timestamp: string): string => {
     let seekTo = '';
@@ -131,7 +133,7 @@ const makeCloudFrontTimestampLink = (post: Post, cloudFrontLink: string, timesta
     }
 
     return `[${label}](mattermusic://external?postID=${post.id}&url=${cloudFrontLink}&seekTo=${seekTo})`;
-}
+};
 
 const getCloudFrontLink = (message: string): string => {
     const urlRegex = /(https:\/\/[a-z0-9]+\.cloudfront\.net[^\s]+)/g;
@@ -142,7 +144,7 @@ const getCloudFrontLink = (message: string): string => {
     }
 
     return matched[0];
-}
+};
 
 const getSecondsFromTimestamp = (timestamp: string): number => {
     const parts = timestamp.split(':');
@@ -156,7 +158,7 @@ const getSecondsFromTimestamp = (timestamp: string): number => {
     }
 
     return 0;
-}
+};
 
 const getCondensedTimestamp = (timestamp: string): string => {
     const parts = timestamp.split(':');
@@ -171,8 +173,8 @@ const getCondensedTimestamp = (timestamp: string): string => {
     }
 
     return timestamp;
-}
+};
 
 const parseTimestamps = (message: string): string[] => {
     return message.match(/([0-9]+:)?[0-9]+:[0-5][0-9]/g) || [];
-}
+};

@@ -26,7 +26,7 @@ export default function SeekTooltip({href, theme, dispatch}: Props) {
         dispatch({type: 'SEEK_GLOBAL_PLAYER', data});
 
         // look to see if it is a music sniper link, then seek if it is the case
-    }
+    };
 
     return (
         <a

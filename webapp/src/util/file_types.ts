@@ -1,4 +1,4 @@
-import {FileInfo} from "mattermost-redux/types/files"
+import {FileInfo} from 'mattermost-redux/types/files';
 
 export enum Mimes {
     AUDIO = 'audio',
@@ -17,7 +17,7 @@ export function getMimeFromFileInfo(fileInfo: FileInfo): string {
 export function getMimeFromURL(fileName: string): string {
     const extension = fileName.slice(fileName.lastIndexOf('.') + 1);
     if (!extension) {
-        return Mimes.AUDIO + '/mp3'
+        return Mimes.AUDIO + '/mp3';
     }
 
     return extensionMap[extension] || '';
