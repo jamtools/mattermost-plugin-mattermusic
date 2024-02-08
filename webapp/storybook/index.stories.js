@@ -21,13 +21,15 @@ import './styles.scss';
 // resetTheme();
 
 addDecorator((storyFn) => (
+
     // <Provider store={store}>
-        // <IntlProvider>
-            // {/* <Router history={browserHistory}> */}
-                <div style={{background: 'white'}}>
-                    {storyFn()}
-                </div>
-            // {/* </Router> */}
-        // </IntlProvider>
+    // <IntlProvider>
+    // {/* <Router history={browserHistory}> */}
+    <div style={{background: 'white'}}>
+        {storyFn()}
+    </div>
+
+    // {/* </Router> */}
+    // </IntlProvider>
     // </Provider>
 ));

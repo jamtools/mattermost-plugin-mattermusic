@@ -17,7 +17,7 @@ const ActionTypes = {
 
     SELECT_POST: 'SELECT_POST',
     SET_RHS_EXPANDED: 'SET_RHS_EXPANDED',
-}
+};
 
 const getFilesForPost = makeGetFilesForPost();
 
@@ -59,7 +59,7 @@ export function playAndShowComments({postID, seekTo, videoID, url}: PlayAndShowC
                 });
             }
         }
-    }
+    };
 }
 
 export function selectPost(post: Post) {
@@ -71,7 +71,7 @@ export function selectPost(post: Post) {
     };
 }
 
-export function setRhsExpanded(expanded=true) {
+export function setRhsExpanded(expanded = true) {
     return {
         type: ActionTypes.SET_RHS_EXPANDED,
         expanded,
@@ -104,7 +104,7 @@ function updateSearchResultsTerms(terms) {
 
 const RHSStates = {
     PIN: 'pin',
-}
+};
 
 export function updateRhsState(rhsState: string, channelId?: string) {
     return (dispatch, getState) => {

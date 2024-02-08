@@ -43,14 +43,16 @@ export default class Plugin {
         }
 
         const hooks = new Hooks(store);
+
         // registry.registerFilesWillUploadHook(hooks.filesWillUploadHook);
-        registry.registerMessageWillFormatHook(hooks.messageWillFormatHook)
+        registry.registerMessageWillFormatHook(hooks.messageWillFormatHook);
 
         // registry.registerPostDropdownMenuComponent(SeekToTimestampPostMenuAction);
 
         // registry.registerRootComponent(SeekTimestampModal);
         registry.registerRootComponent(GlobalPlayer);
         registry.registerRootComponent(YoutubePlayer);
+
         // registry.registerRootComponent(TrimModal);
 
         registry.registerFilePreviewComponent(shouldDisplayFileOverride, FileViewOverride);
@@ -73,7 +75,7 @@ export default class Plugin {
             }
         }
 
-        const prefix = 'mattermusic://'
+        const prefix = 'mattermusic://';
         if (!href.startsWith(prefix)) {
             return;
         }
@@ -87,27 +89,32 @@ export default class Plugin {
         if (name === 'media') {
             const {postID, seekTo} = parseQueryString(query);
             this.store.dispatch(playAndShowComments({postID, seekTo}));
-        } else if(name === 'youtube') {
+        } else if (name === 'youtube') {
             const {postID, seekTo, videoID} = parseQueryString(query);
             this.store.dispatch(playAndShowComments({postID, seekTo, videoID}));
-        } else if(name === 'external') {
+        } else if (name === 'external') {
             const {postID, seekTo, url} = parseQueryString(query);
             this.store.dispatch(playAndShowComments({postID, seekTo, url}));
         }
-    }
+    };
 
     initYoutube = () => {
         setTimeout(() => {
             const tag = document.createElement('script');
-            tag.src = "";
+            tag.src = '';
+
             // tag.src = "https://www.youtube.com/iframe_api";
-            tag.src = "/plugins/mattermusic/assets/iframe_api";
+            tag.src = '/plugins/mattermusic/assets/iframe_api';
             const firstScriptTag = document.getElementsByTagName('script')[0];
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
             window.onYouTubeIframeAPIReady = () => {
                 console.log('LOADED YOUTUBE!!!!!');
-            }
+            };
         }, 1000);
-    }
+    };
 }
+
+import {id} from './manifest';
+
+window.registerPlugin(id, new Plugin());

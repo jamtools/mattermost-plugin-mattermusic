@@ -1,8 +1,9 @@
-import {Reducer} from "redux";
-import {Post} from "mattermost-redux/types/posts";
-import {Theme} from "mattermost-redux/types/preferences";
-import {FileInfo} from "mattermost-redux/types/files";
-import {State} from "../reducers";
+import {Reducer} from 'redux';
+import {Post} from 'mattermost-redux/types/posts';
+import {Theme} from 'mattermost-redux/types/preferences';
+import {FileInfo} from 'mattermost-redux/types/files';
+
+import {State} from '../reducers';
 
 export type FileHookResponse = {
     message: string | null; // error message

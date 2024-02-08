@@ -3,8 +3,9 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {Modal} from 'react-bootstrap';
 
-import {TrimModalData, State} from '../reducers';
 import {Theme} from 'mattermost-redux/types/preferences';
+
+import {TrimModalData, State} from '../reducers';
 
 import FormButton from './form_button';
 
@@ -58,7 +59,7 @@ function ModalImpl<T>(props: Props<T> & DefaultProps & OwnProps<T>) {
         e.preventDefault();
         e.stopPropagation();
         props.close();
-    }
+    };
 
     const Body = props.body;
     const Footer = props.footer;
@@ -74,7 +75,7 @@ function ModalImpl<T>(props: Props<T> & DefaultProps & OwnProps<T>) {
         </FormButton>
     );
 
-    let footer = (
+    const footer = (
         <React.Fragment>
             {footerClose}
             {Footer && <Footer {...props}/>}
