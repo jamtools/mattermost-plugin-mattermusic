@@ -34,8 +34,10 @@ export function playAndShowComments({postID, seekTo, videoID, url}: PlayAndShowC
             alert('couldnt get post for media');
         }
 
-        dispatch(selectPost(post));
-        dispatch(setRhsExpanded(true));
+        if (state.views.rhs.selectedPostId !== postID) {
+            dispatch(selectPost(post));
+            dispatch(setRhsExpanded(true));
+        }
 
         if (videoID) {
             dispatch({

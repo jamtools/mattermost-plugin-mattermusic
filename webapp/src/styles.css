@@ -17,3 +17,20 @@ audio::-webkit-media-controls-panel {
     /* max-width: 500px;
     min-width: 30%; */
 }
+
+.login-body-message-svg {
+    display: none;
+}
+
+p.signup-body-message-subtitle {
+    visibility: hidden;
+    position: relative;
+}
+
+p.signup-body-message-subtitle:after {
+    visibility: visible;
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "";
+}

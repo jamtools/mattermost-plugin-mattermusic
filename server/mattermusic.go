@@ -3,8 +3,8 @@ package main
 import (
 	"strings"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 )
 
 var extensionMap = map[string]string{
@@ -61,14 +61,22 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 const spotifyTheme = `{"sidebarBg":"#121212","sidebarText":"#ffffff","sidebarUnreadText":"#ffffff","sidebarTextHoverBg":"#282828","sidebarTextActiveBorder":"#1bba56","sidebarTextActiveColor":"#1bba56","sidebarHeaderBg":"#121212","sidebarHeaderTextColor":"#ffffff","onlineIndicator":"#1bba56","awayIndicator":"#e0b333","dndIndicator":"#f74343","mentionBg":"#1bba56","mentionBj":"#1bba56","mentionColor":"#ffffff","centerChannelBg":"#181818","centerChannelColor":"#9d9d9d","newMessageSeparator":"#1bba56","linkColor":"#1bba56","buttonBg":"#1bba56","buttonColor":"#ffffff","errorTextColor":"#fd5960","mentionHighlightBg":"#184127","mentionHighlightLink":"#ffffff","codeTheme":"monokai"}`
 
 func (p *Plugin) UserHasBeenCreated(c *plugin.Context, user *model.User) {
-	pref := model.Preference{
-		Category: "theme",
-		Name:     "",
-		UserId:   user.Id,
-		Value:    spotifyTheme,
+	prefs := model.Preferences{
+		{
+			Category: "theme",
+			Name:     "",
+			UserId:   user.Id,
+			Value:    spotifyTheme,
+		},
+		{
+			Category: "display_settings",
+			Name:     "click_to_reply",
+			UserId:   user.Id,
+			Value:    "false",
+		},
 	}
 
-	err := p.API.UpdatePreferencesForUser(user.Id, model.Preferences{pref})
+	err := p.API.UpdatePreferencesForUser(user.Id, prefs)
 	if err != nil {
 		p.API.LogError(err.Error())
 	}

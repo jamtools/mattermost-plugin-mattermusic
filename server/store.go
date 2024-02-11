@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v6/model"
 )
 
 const ProjectsKVKey = "projects"
@@ -24,7 +24,7 @@ func (p *Plugin) GetProjects() ([]*Project, error) {
 	}
 
 	projects := []*Project{}
-	err = json.Unmarshal(b, projects)
+	err = json.Unmarshal(b, &projects)
 	if err != nil {
 		return nil, err
 	}

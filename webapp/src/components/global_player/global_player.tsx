@@ -228,11 +228,14 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
             ...extra,
             ...placement,
         };
-        closeButtonStyle = {
-            ...closeButtonStyle,
-            top: '-20px',
-            left: '30px',
-        };
+
+        if (isVideo) {
+            closeButtonStyle = {
+                ...closeButtonStyle,
+                top: '-20px',
+                left: '30px',
+            };
+        }
     }
 
     const clickedClose = (e) => {
@@ -388,7 +391,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
     } else if (isVideo) {
         commentButtonStyle = {top: '-20px', left: '130px'};
     } else {
-        commentButtonStyle = {top: '-20px', left: '130px'};
+        commentButtonStyle = {top: '7px', right: '-28px'};
     }
     extraButtons.push(
         <div
@@ -400,6 +403,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
         >
             <a
                 onClick={clickedCommentsButton}
+                style={{color: 'rgba(255, 255, 255, 0.56)'}}
             >
                 {/* {'Comments'} */}
                 <i className='fa fa-comment'></i>
