@@ -1,8 +1,9 @@
-import {Reducer} from "redux";
-import {Post} from "mattermost-redux/types/posts";
-import {Theme} from "mattermost-redux/types/preferences";
-import {FileInfo} from "mattermost-redux/types/files";
-import {State} from "../reducers";
+import {Reducer} from 'redux';
+import {Post} from 'mattermost-redux/types/posts';
+import {Theme} from 'mattermost-redux/types/preferences';
+import {FileInfo} from 'mattermost-redux/types/files';
+
+import {State} from '../reducers';
 
 export type FileHookResponse = {
     message: string | null; // error message
@@ -13,7 +14,7 @@ type DefaultProps = {theme: Theme};
 type PostDropdownMenuComponentProps = DefaultProps & {postId: string};
 type FilePreviewOverrideProps = DefaultProps & {fileInfo: FileInfo, post: Post};
 
-export type FilesWillUploadHook = (files: File[], upload: (files: File[]) => void) => Promise<FileHookResponse>;
+export type FilesWillUploadHook = (files: File[], upload: (filesToUpload: File[]) => void) => Promise<FileHookResponse>;
 
 type Component<T> = React.Component<T> | React.FunctionComponent<T>
 
@@ -22,9 +23,9 @@ export interface Registry {
     registerFilesWillUploadHook: (hook: FilesWillUploadHook) => string;
     registerReducer: (reducer: Reducer) => void;
     registerMessageWillFormatHook: (hook: (post: Post, message: string) => string) => void;
-    registerRootComponent: (component: Component<DefaultProps>) => void;
+    registerRootComponent: (component: React.ElementType) => void;
     registerPostDropdownMenuComponent: (component: Component<PostDropdownMenuComponentProps>) => void;
-    registerFilePreviewComponent: (override: (fileInfo: FileInfo, post: Post) => boolean, component: Component<FilePreviewOverrideProps>) => string;
+    registerFilePreviewComponent: (override: (fileInfo: FileInfo, post: Post) => boolean, component: React.ElementType) => string;
 }
 
 export interface Store {

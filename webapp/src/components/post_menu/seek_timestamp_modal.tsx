@@ -1,8 +1,9 @@
 import React from 'react';
 import {bindActionCreators} from 'redux';
 
-import {SeekTimestampModalData, State} from '../../reducers';
 import {Theme} from 'mattermost-redux/types/preferences';
+
+import {SeekTimestampModalData, State} from '../../reducers';
 
 type DefaultProps = {theme: Theme}
 
@@ -19,31 +20,30 @@ const config: ConnectConfig<SeekTimestampModalData> = {
         close: () => ({type: 'CLOSE_SEEK_TIMESTAMPS_MODAL'}),
         seekGlobalPlayer: (fileID: string, seekTo: string) => ({type: 'SEEK_GLOBAL_PLAYER', data: {fileID, seekTo}}),
     }, dispatch),
-}
+};
 
 const FancyModal = createModal<SeekTimestampModalData>(config);
-export default function SeekTimestampModal(props: DefaultProps) {
-
+export default function SeekTimestampModal(outerProps: DefaultProps) {
     const InnerBody = (props: {data: SeekTimestampModalData; close: () => void, seekGlobalPlayer: (fileID: string, seekTo: string) => void}) => {
-
         if (!props.data) {
-            return 'No data for modal';
+            return <>{'No data for modal'}</>;
         }
 
-        const clickedTimestamp = (timestamp: string) => (e) => {
+        const clickedTimestamp = (timestamp: string) => (e: React.MouseEvent) => {
             e.stopPropagation();
             e.preventDefault();
 
             if (!props.data) {
-                return 'No data for modal';
+                return;
             }
             props.seekGlobalPlayer(props.data.fileID, timestamp);
-        }
+        };
 
         return (
             <div>
-                {props.data.timestamps.map((timestamp: string) => (
+                {props.data.timestamps.map((timestamp: string, i: number) => (
                     <FormButton
+                        key={i}
                         btnClass='btn btn-primary'
                         saving={false}
                         onClick={clickedTimestamp(timestamp)}
@@ -53,28 +53,28 @@ export default function SeekTimestampModal(props: DefaultProps) {
                 ))}
             </div>
         );
-    }
+    };
 
-    const body = (props: {data: SeekTimestampModalData}) => {
+    const Body = (props: {data: SeekTimestampModalData, close: () => void, seekGlobalPlayer: (fileID: string, seekTo: string) => void}) => {
         if (!props.data) {
             return <span>{'No data'}</span>;
         }
 
         // if (!props.data.files.length) {
-            // return <span>{'No files'}</span>;
+        // return <span>{'No files'}</span>;
         // }
 
-        return <InnerBody {...props}/>
-    }
+        return <InnerBody {...props}/>;
+    };
 
-    const footer = (props: any) => false;
+    const Footer = (props: any) => null;
 
     return (
         <FancyModal
             header={'Seek it bro!'}
-            body={body}
-            footer={footer}
-            theme={props.theme}
+            body={Body}
+            footer={Footer}
+            theme={outerProps.theme}
         />
-    )
+    );
 }

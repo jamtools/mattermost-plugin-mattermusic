@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 const ProjectsKVKey = "projects"
@@ -24,7 +24,7 @@ func (p *Plugin) GetProjects() ([]*Project, error) {
 	}
 
 	projects := []*Project{}
-	err = json.Unmarshal(b, projects)
+	err = json.Unmarshal(b, &projects)
 	if err != nil {
 		return nil, err
 	}
@@ -46,13 +46,17 @@ func (p *Plugin) GetProjectsBlob() ([]byte, error) {
 
 func (p *Plugin) CreateProject(name string) (*Project, error) {
 	if name == "" {
-		return nil, errors.New("Cannot create project with no name")
+		return nil, errors.New("cannot create project with no name")
 	}
 
 	projects, err := p.GetProjects()
+	if err != nil {
+		return nil, err
+	}
+
 	for _, proj := range projects {
 		if proj.Name == name {
-			return nil, fmt.Errorf("Project %s already exists", name)
+			return nil, fmt.Errorf("project %s already exists", name)
 		}
 	}
 

@@ -4,6 +4,7 @@
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 
+// eslint-disable-next-line react/prefer-stateless-function
 export default class FormButton extends PureComponent<any> {
     static propTypes = {
         executing: PropTypes.bool,
@@ -41,6 +42,7 @@ export default class FormButton extends PureComponent<any> {
             );
         } else {
             contents = props.children;
+
             // contents = defaultMessage;
         }
 

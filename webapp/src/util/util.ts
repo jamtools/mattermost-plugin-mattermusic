@@ -1,5 +1,3 @@
-import {FileInfo} from 'mattermost-redux/types/files';
-
 export function parseQueryString(query: string): any {
     const vars = query.split('&');
     return vars.reduce((accum, v) => {
@@ -9,7 +7,7 @@ export function parseQueryString(query: string): any {
         return {
             ...accum,
             [key]: value,
-        }
+        };
     }, {});
 }
 
@@ -41,27 +39,26 @@ export function copyTextToClipboard(text: string) {
         fallbackCopyTextToClipboard(text);
         return;
     }
-    navigator.clipboard.writeText(text).then(function () {
-    }, function (err) {
+    navigator.clipboard.writeText(text).catch((err) => {
         console.error('Async: Could not copy text: ', err);
     });
 }
 
 export const addTextToClipboard = (toAdd: string) => {
-    navigator.clipboard.readText()
-    .then((text='') => {
-        if (text) {
-            text += ' ';
-        }
-        copyTextToClipboard(text + toAdd);
-    })
-    .catch(err => {
-        console.error('Failed to read clipboard contents: ', err);
-    });
+    navigator.clipboard.readText().
+        then((text = '') => {
+            if (text) {
+                text += ' ';
+            }
+            copyTextToClipboard(text + toAdd);
+        }).
+        catch((err) => {
+            console.error('Failed to read clipboard contents: ', err);
+        });
 };
 
 export function getTimestampFromSeconds(seconds: number) {
-    const minuteStr = Math.floor(seconds/60).toString();
+    const minuteStr = Math.floor(seconds / 60).toString();
     const second = Math.floor(seconds % 60);
     let secondStr = second.toString();
     if (second < 10) {
@@ -72,12 +69,12 @@ export function getTimestampFromSeconds(seconds: number) {
 }
 
 export function getSecondsFromTimestamp(timestamp: string): number {
-    if(!timestamp) {
+    if (!timestamp) {
         return 0;
     }
 
     const [minuteStr, secondsStr] = timestamp.split(':');
-    const minutes = parseInt(minuteStr);
-    const seconds = parseInt(secondsStr);
-    return minutes*60 + seconds;
+    const minutes = parseInt(minuteStr, 10);
+    const seconds = parseInt(secondsStr, 10);
+    return (minutes * 60) + seconds;
 }

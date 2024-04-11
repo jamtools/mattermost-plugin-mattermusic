@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"sync"
 
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/pkg/errors"
 )
 
@@ -22,7 +22,7 @@ type Plugin struct {
 
 func (p *Plugin) OnActivate() error {
 	if p.API.GetConfig().ServiceSettings.SiteURL == nil {
-		return errors.New("SiteURL not set")
+		return errors.New("the SiteURL not set")
 	}
 
 	return nil
@@ -30,10 +30,6 @@ func (p *Plugin) OnActivate() error {
 
 // ServeHTTP demonstrates a plugin that handles HTTP requests by greeting the world.
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
-	if true {
-		// fmt.Fprint(w, "Cuttin' it short")
-		// return
-	}
 	switch r.URL.Path {
 	case "/assets/iframe_api", "/assets/iframe_widget_api.js":
 		p.handleAssets(w, r)
@@ -66,12 +62,12 @@ func (p *Plugin) handleGetProjects(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(200)
-	w.Write(b)
+	_, _ = w.Write(b)
 }
 
 // handleCreateProject creates a new project
 func (p *Plugin) handleCreateProject(w http.ResponseWriter, r *http.Request) {
-	b, err := ioutil.ReadAll(r.Body)
+	b, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Error reading request body: "+err.Error())
@@ -102,12 +98,12 @@ func (p *Plugin) handleCreateProject(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(200)
-	w.Write(b)
+	_, _ = w.Write(b)
 }
 
 // handleTrim trims an audio file based on start and end params
 func (p *Plugin) handleTrim(w http.ResponseWriter, r *http.Request) {
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Error marshaling project response: "+err.Error())
@@ -118,5 +114,5 @@ func (p *Plugin) handleTrim(w http.ResponseWriter, r *http.Request) {
 	// file := r.Form.Get("file")
 
 	w.WriteHeader(200)
-	w.Write(data)
+	_, _ = w.Write(data)
 }

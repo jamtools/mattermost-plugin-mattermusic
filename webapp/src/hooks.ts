@@ -11,29 +11,34 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {Store, FileHookResponse} from "./util/plugin_registry";
-import {Post} from "mattermost-redux/types/posts";
-import {getPost} from "mattermost-redux/selectors/entities/posts";
-import {postHasMedia} from "./selectors";
+import {Post} from 'mattermost-redux/types/posts';
+import {getPost} from 'mattermost-redux/selectors/entities/posts';
 
-export default class Hooks implements IHooks {
-    constructor(private store: Store) {}
+import {Store, FileHookResponse} from './util/plugin_registry';
+import {postHasMedia} from './selectors';
 
-    filesWillUploadHook = (files: File[], upload: (files: File[]) => void): Promise<FileHookResponse> => {
+export default class Hooks {
+    private store: Store;
+
+    constructor(store: Store) {
+        this.store = store;
+    }
+
+    filesWillUploadHook = (files: File[], upload: (filesToUpload: File[]) => void): FileHookResponse => {
         this.store.dispatch({
             type: 'OPEN_TRIM_MODAL',
             data: {
                 files,
                 upload,
             },
-        })
+        });
 
         // setTimeout(() => upload(files), 1000);
         return {
             message: '',
             files: [],
         };
-    }
+    };
 
     /**
         * Register a hook that will be called before a message is formatted into Markdown.
@@ -79,7 +84,7 @@ export default class Hooks implements IHooks {
             return timestamps.reduce((accum: string, timestamp: string): string => {
                 const link = makeYoutubeTimestampLink(mediaPost, timestamp);
                 return accum.replace(timestamp, link);
-            }, message)
+            }, message);
         }
 
         if (cloudFrontLink.length) {
@@ -88,11 +93,11 @@ export default class Hooks implements IHooks {
             return timestamps.reduce((accum: string, timestamp: string): string => {
                 const link = makeCloudFrontTimestampLink(mediaPost, cloudFrontLink, timestamp);
                 return accum.replace(timestamp, link);
-            }, message)
+            }, message);
         }
 
         return message;
-    }
+    };
 }
 
 const makeMediaTimestampLink = (post: Post, timestamp: string): string => {
@@ -100,24 +105,25 @@ const makeMediaTimestampLink = (post: Post, timestamp: string): string => {
     const condensed = getCondensedTimestamp(timestamp);
 
     return `[${timestamp}](mattermusic://media?postID=${post.id}&seekTo=${condensed})`;
-}
+};
 
 const makeYoutubeTimestampLink = (post: Post, timestamp: string): string => {
     const vid = getYoutubeVideoID(post.message);
     const seconds = getSecondsFromTimestamp(timestamp);
+
     // return `[${timestamp}](https://youtube.com/watch?v=${vid}?t=${seconds})`;
     return `[${timestamp}](mattermusic://youtube?postID=${post.id}&seekTo=${timestamp}&videoID=${vid})`;
-}
+};
 
 export const getYoutubeVideoID = (message: string) => {
-    const r = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\? ]*).*/;
+    const r = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#&? ]*).*/;
     const matched = message.match(r);
     if (!matched) {
         return '';
     }
 
     return matched[1];
-}
+};
 
 const makeCloudFrontTimestampLink = (post: Post, cloudFrontLink: string, timestamp: string): string => {
     let seekTo = '';
@@ -131,7 +137,7 @@ const makeCloudFrontTimestampLink = (post: Post, cloudFrontLink: string, timesta
     }
 
     return `[${label}](mattermusic://external?postID=${post.id}&url=${cloudFrontLink}&seekTo=${seekTo})`;
-}
+};
 
 const getCloudFrontLink = (message: string): string => {
     const urlRegex = /(https:\/\/[a-z0-9]+\.cloudfront\.net[^\s]+)/g;
@@ -142,21 +148,21 @@ const getCloudFrontLink = (message: string): string => {
     }
 
     return matched[0];
-}
+};
 
 const getSecondsFromTimestamp = (timestamp: string): number => {
     const parts = timestamp.split(':');
 
     if (parts.length === 2) {
-        return (parseInt(parts[0]) * 60) + parseInt(parts[1]);
+        return (parseInt(parts[0], 10) * 60) + parseInt(parts[1], 10);
     }
 
     if (parts.length === 3) {
-        return (parseInt(parts[0]) * 60 * 60) + (parseInt(parts[1]) * 60) + parseInt(parts[2]);
+        return (parseInt(parts[0], 10) * 60 * 60) + (parseInt(parts[1], 10) * 60) + parseInt(parts[2], 10);
     }
 
     return 0;
-}
+};
 
 const getCondensedTimestamp = (timestamp: string): string => {
     const parts = timestamp.split(':');
@@ -166,13 +172,13 @@ const getCondensedTimestamp = (timestamp: string): string => {
     }
 
     if (parts.length === 3) {
-        const minutes = (parseInt(parts[0]) * 60) + parseInt(parts[1]);
+        const minutes = (parseInt(parts[0], 10) * 60) + parseInt(parts[1], 10);
         return `${minutes}:${parts[2]}`;
     }
 
     return timestamp;
-}
+};
 
 const parseTimestamps = (message: string): string[] => {
     return message.match(/([0-9]+:)?[0-9]+:[0-5][0-9]/g) || [];
-}
+};

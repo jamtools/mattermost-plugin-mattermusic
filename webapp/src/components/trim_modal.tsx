@@ -1,14 +1,16 @@
 import React from 'react';
 import {bindActionCreators} from 'redux';
 
-import {TrimModalData, State} from '../reducers';
 import {Theme} from 'mattermost-redux/types/preferences';
+
+import {TrimModalData, State} from '../reducers';
 
 type DefaultProps = {theme: Theme}
 
+import {Project} from 'src/model';
+
 import FormButton from './form_button';
 import createModal, {ConnectConfig} from './modal';
-import {Project} from 'src/model';
 
 const config: ConnectConfig<TrimModalData> = {
     state: ({'plugins-mattermusic': {trimModal}}) => ({
@@ -18,12 +20,12 @@ const config: ConnectConfig<TrimModalData> = {
     dispatch: (dispatch) => bindActionCreators({
         close: () => ({type: 'CLOSE_TRIM_MODAL'}),
     }, dispatch),
-}
+};
 
 enum Bounds {
     Start,
     End,
-};
+}
 
 type TrimPayload = {
     start: number;
@@ -32,7 +34,7 @@ type TrimPayload = {
 }
 
 const FancyModal = createModal<TrimModalData>(config);
-export default function ActualExport(props: DefaultProps) {
+export default function ActualExport(outerProps: DefaultProps) {
     const InnerBody = (props: {data: TrimModalData; close: () => void}) => {
         const [startTime, setStartTime] = React.useState(0);
         const [endTime, setEndTime] = React.useState(0);
@@ -44,16 +46,16 @@ export default function ActualExport(props: DefaultProps) {
 
         const setTime = (time: number) => {
             switch (selectedBound) {
-                case Bounds.Start:
-                    setStartTime(time);
-                    break;
-                case Bounds.End:
-                    setEndTime(time);
-                    break;
+            case Bounds.Start:
+                setStartTime(time);
+                break;
+            case Bounds.End:
+                setEndTime(time);
+                break;
             }
-        }
+        };
 
-        const submitTrim = (e) => {
+        const submitTrim = (e: React.FormEvent) => {
             e.preventDefault();
             e.stopPropagation();
 
@@ -67,7 +69,7 @@ export default function ActualExport(props: DefaultProps) {
             const name = file.name.substring(0, index);
             const ext = file.name.substring(index);
             const newName = `${name}-trimmed${ext}`;
-            const file2 = new File([file], newName, { type: file.type });
+            const file2 = new File([file], newName, {type: file.type});
 
             if (props.data.upload) {
                 props.data.upload([file, file2]);
@@ -83,32 +85,31 @@ export default function ActualExport(props: DefaultProps) {
             //     body: formData,
             //     method: 'POST',
             // }).then(r => r.text()).then(console.log);
-        }
+        };
 
-        const file = props.data.files[0];
-        const blobURL = URL.createObjectURL(file);
+        const file = props.data?.files[0];
 
         React.useEffect(() => {
             if (audioRef && audioRef.current) {
                 const audio = audioRef.current;
                 audio.onseeking = () => {
                     setTime(Math.round(audio.currentTime));
-                }
+                };
                 audio.onpause = () => {
                     setTime(Math.round(audio.currentTime));
-                }
+                };
             }
         }, [selectedBound]);
 
         React.useEffect(() => {
-            fetch('/plugins/mattermusic/projects').then(r => r.json()).then(setProjects);
+            fetch('/plugins/mattermusic/projects').then((r) => r.json()).then(setProjects);
         }, []);
 
-        const clickedBoundsButton = (b: Bounds) => (e) => {
+        const clickedBoundsButton = (b: Bounds) => (e: React.MouseEvent) => {
             e.stopPropagation();
             e.preventDefault();
             setSelectedBound(b);
-        }
+        };
 
         return (
             <div>
@@ -120,7 +121,10 @@ export default function ActualExport(props: DefaultProps) {
                     >
                         {'Start'}
                     </FormButton>
-                    <input value={startTime} onChange={e => setStartTime(parseInt(e.target.value))}/>
+                    <input
+                        value={startTime}
+                        onChange={(e) => setStartTime(parseInt(e.target.value, 10))}
+                    />
                 </div>
                 <div>
                     <FormButton
@@ -130,15 +134,32 @@ export default function ActualExport(props: DefaultProps) {
                     >
                         {'End'}
                     </FormButton>
-                    <input value={endTime} onChange={e => setEndTime(parseFloat(e.target.value))}/>
+                    <input
+                        value={endTime}
+                        onChange={(e) => setEndTime(parseFloat(e.target.value))}
+                    />
                 </div>
 
-                <audio controls={true} ref={audioRef} style={{width: '100%'}}>
-                    <source src={blobURL} type={`audio/${file.name.split('.').pop()}`}/>
-                </audio>
+                {file && (
+                    <audio
+                        controls={true}
+                        ref={audioRef}
+                        style={{width: '100%'}}
+                    >
+                        <source
+                            src={URL.createObjectURL(file)}
+                            type={`audio/${file.name.split('.').pop()}`}
+                        />
+                    </audio>
+                )}
                 <select>
                     {projects.map((project) => (
-                        <option value={project.ID}>{project.Name}</option>
+                        <option
+                            key={project.ID}
+                            value={project.ID}
+                        >
+                            {project.Name}
+                        </option>
                     ))}
                 </select>
                 <FormButton
@@ -148,11 +169,11 @@ export default function ActualExport(props: DefaultProps) {
                 >
                     {'Trim'}
                 </FormButton>
-            </div>
+            </div >
         );
-    }
+    };
 
-    const body = (props: {data: TrimModalData}) => {
+    const Body = (props: {data: TrimModalData, close: () => void}) => {
         if (!props.data) {
             return <span>{'No data'}</span>;
         }
@@ -161,14 +182,14 @@ export default function ActualExport(props: DefaultProps) {
             return <span>{'No files'}</span>;
         }
 
-        return <InnerBody {...props}/>
-    }
+        return <InnerBody {...props}/>;
+    };
 
-    const footer = (props: any) => (
+    const Footer = (props: any) => (
         <FormButton
             btnClass='btn btn-primary'
             saving={false}
-            onClick={e => e.stopPropagation()}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
         >
             {'Create'}
         </FormButton>
@@ -177,9 +198,9 @@ export default function ActualExport(props: DefaultProps) {
     return (
         <FancyModal
             header={'Im the trim modal! Whats up bro!'}
-            body={body}
-            footer={footer}
-            theme={props.theme}
+            body={Body}
+            footer={Footer}
+            theme={outerProps.theme}
         />
-    )
+    );
 }

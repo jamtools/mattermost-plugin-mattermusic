@@ -10,11 +10,10 @@ linters-settings:
     simplify: true
   goimports:
     local-prefixes: github.com/mattermost/mattermost-starter-template
-  golint:
-    min-confidence: 0
   govet:
-    check-shadowing: true
     enable-all: true
+    disable:
+      - fieldalignment
   misspell:
     locale: US
 
@@ -24,7 +23,6 @@ linters:
     - bodyclose
     - deadcode
     - errcheck
-    - goconst
     - gocritic
     - gofmt
     - goimports

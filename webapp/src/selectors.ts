@@ -1,8 +1,9 @@
-import {GlobalState} from "mattermost-redux/types/store";
-import {Post} from "mattermost-redux/types/posts";
-import {makeGetFilesForPost} from "mattermost-redux/selectors/entities/files";
-import {FileInfo} from "mattermost-redux/types/files";
-import {getMimeFromFileInfo} from "./util/file_types";
+import {GlobalState} from 'mattermost-redux/types/store';
+import {Post} from 'mattermost-redux/types/posts';
+import {makeGetFilesForPost} from 'mattermost-redux/selectors/entities/files';
+import {FileInfo} from 'mattermost-redux/types/files';
+
+import {getMimeFromFileInfo} from './util/file_types';
 
 const getFiles = makeGetFilesForPost();
 export const postHasMedia = (state: GlobalState, post?: Post): boolean => {
@@ -22,4 +23,4 @@ export const postHasMedia = (state: GlobalState, post?: Post): boolean => {
     }
 
     return false;
-}
+};

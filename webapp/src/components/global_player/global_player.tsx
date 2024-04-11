@@ -1,15 +1,18 @@
-import React from 'react';
+import React, {CSSProperties} from 'react';
 import {connect} from 'react-redux';
 import {useDrag, DndProvider} from 'react-dnd';
-import Backend from 'react-dnd-html5-backend';
+import {HTML5Backend as Backend} from 'react-dnd-html5-backend';
 
 import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
 
+import {bindActionCreators, Dispatch} from 'redux';
+
+import {Theme} from 'mattermost-redux/types/preferences';
+
 import {State, GlobalPlayerData} from 'src/reducers';
-import {bindActionCreators} from 'redux';
 import {copyTextToClipboard, getTimestampFromSeconds} from '../../util/util';
 import {playAndShowComments} from '../../actions';
-import {Theme} from 'mattermost-redux/types/preferences';
+
 import {getMimeFromFileInfo, getMimeFromURL, Mimes} from '../../util/file_types';
 
 type StateProps<T> = {
@@ -20,6 +23,7 @@ type StateProps<T> = {
 
 type DispatchProps = {
     close: () => void;
+    playAndShowComments: typeof playAndShowComments;
 };
 
 type Props<T> = StateProps<T> & DispatchProps
@@ -39,19 +43,19 @@ export const config = {
         data: p.globalPlayer,
         theme: getTheme(state),
     }),
-    dispatch: (dispatch) => bindActionCreators({
+    dispatch: (dispatch: Dispatch) => bindActionCreators({
         close: () => ({type: 'CLOSE_GLOBAL_PLAYER'}),
         playAndShowComments,
     }, dispatch),
-}
+};
 
 export const WithDND = (props: any) => {
     return (
         <DndProvider backend={Backend}>
             <GlobalPlayerImpl {...props}/>
         </DndProvider>
-    )
-}
+    );
+};
 
 const GlobalPlayer = connect(config.state, config.dispatch)(WithDND);
 export default GlobalPlayer;
@@ -63,31 +67,30 @@ enum MobilePlacement {
     BOTTOM,
 }
 
-const getDefaultPlacement = (mime: Mimes, videoSize?:VideoPlayerSize): any => {
+const getDefaultPlacement = (mime: string, videoSize?:VideoPlayerSize): any => {
     if (mime.includes(Mimes.AUDIO)) {
         return audioDefaultPlacement;
-    } else {
-        if (isVideoSizeSmall(videoSize as VideoPlayerSize)) {
-            return videoDefaultPlacement;
-        }
-        return videoDefaultBigPlacement;
     }
-}
+    if (isVideoSizeSmall(videoSize as VideoPlayerSize)) {
+        return videoDefaultPlacement;
+    }
+    return videoDefaultBigPlacement;
+};
 
-const audioDefaultPlacement = {
+const audioDefaultPlacement: CSSProperties = {
     top: '2px',
     right: '195px',
-}
+};
 
-const videoDefaultPlacement = {
+const videoDefaultPlacement: CSSProperties = {
     top: '119px',
     right: '0px',
-}
+};
 
-const videoDefaultBigPlacement = {
+const videoDefaultBigPlacement: CSSProperties = {
     bottom: '0px',
     right: '0px',
-}
+};
 
 enum VideoPlayerSize {
     SMALL = 'small',
@@ -98,7 +101,7 @@ const isVideoSizeSmall = (videoSize: VideoPlayerSize) => videoSize === VideoPlay
 export type GlobalPlayerProps = Props<GlobalPlayerData>;
 
 export function GlobalPlayerImpl(props: GlobalPlayerProps) {
-    const playerRef = React.createRef<HTMLAudioElement>();
+    const playerRef = React.createRef<HTMLAudioElement | HTMLVideoElement>();
     const [fileURL, setFileURL] = React.useState('');
 
     const [placement, setPlacement] = React.useState(audioDefaultPlacement);
@@ -108,20 +111,21 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
     const [visible, setVisible] = React.useState(true);
     const [videoSize, setVideoSize] = React.useState(VideoPlayerSize.SMALL);
 
-    const [{ opacity }, dragRef] = useDrag({
-        item: { type: 'CARD', text: 'Hey' },
-        collect: monitor => ({
-          opacity: monitor.isDragging() ? 0.5 : 1,
+    const [{opacity}, dragRef] = useDrag({
+        type: 'CARD',
+        item: {text: 'Hey'},
+        collect: (monitor) => ({
+            opacity: monitor.isDragging() ? 0.5 : 1,
         }),
         end: (item, monitor) => {
-            const offset = monitor.getClientOffset()
+            const offset = monitor.getClientOffset() || {x: 0, y: 0};
 
             setPlacement({
                 top: `${offset.y - 100}px`,
                 left: `${offset.x - 300}px`,
             });
         },
-      })
+    });
 
     React.useEffect(() => {
         let newFileURL = '';
@@ -150,8 +154,8 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
             const current = playerRef.current as HTMLAudioElement | HTMLVideoElement;
 
             if (props.data.seekTo) {
-                const [minute, second] = props.data.seekTo.split(':')
-                const time = parseInt(minute) * 60 + parseInt(second);
+                const [minute, second] = props.data.seekTo.split(':');
+                const time = (parseInt(minute, 10) * 60) + parseInt(second, 10);
                 current.currentTime = time;
                 current.onloadeddata = (e) => {
                     if (playerRef.current) {
@@ -160,21 +164,19 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
                 };
             }
         }
-
     }, [props.data]);
 
     if (!props.show) {
-        return false;
+        return null;
     }
 
     if (!props.data) {
-        return false;
+        return null;
     }
 
-    let closeButtonStyle = {
+    let closeButtonStyle: CSSProperties = {
         position: 'absolute',
     };
-
 
     let mime = '';
     if (props.data.fileInfo) {
@@ -187,7 +189,8 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
     const isVideo = mime.includes(Mimes.VIDEO);
     const isAudio = mime.includes(Mimes.AUDIO);
 
-    let style;
+    let style: CSSProperties = {};
+
     // break this out into two components. mobile and web
     if (isMobile) {
         style = {
@@ -200,13 +203,13 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
                 ...style,
                 top: '50px',
                 right: '0px',
-            }
+            };
         } else {
             style = {
                 ...style,
                 bottom: '50px',
                 right: '0px',
-            }
+            };
         }
 
         closeButtonStyle = {
@@ -235,20 +238,21 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
         };
     }
 
-    const clickedClose = (e) => {
+    const clickedClose = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         props.close();
     };
 
-    const clickedSwitchMobilePlacement = (e) => {
+    const clickedSwitchMobilePlacement = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         switch (mobilePlacement) {
-            case MobilePlacement.TOP:
-                return setMobilePlacement(MobilePlacement.BOTTOM);
-            case MobilePlacement.BOTTOM:
-                return setMobilePlacement(MobilePlacement.TOP);
+        case MobilePlacement.TOP:
+            setMobilePlacement(MobilePlacement.BOTTOM);
+            return;
+        case MobilePlacement.BOTTOM:
+            setMobilePlacement(MobilePlacement.TOP);
         }
     };
 
@@ -266,9 +270,10 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
                 }}
                 id={'global-player'}
                 controls={true}
+
                 // autoPlay={true}
                 ref={playerRef}
-                >
+            >
                 <source
                     src={fileURL}
                     type={mime}
@@ -282,8 +287,9 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
                 style={{width: '100%', maxHeight: '600px'}}
                 id={'global-player'}
                 controls={true}
+
                 // autoPlay={true}
-                ref={playerRef}
+                ref={playerRef as React.RefObject<HTMLVideoElement>}
             >
                 <source
                     src={fileURL}
@@ -295,7 +301,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
 
     const extraButtons = [];
     if (!isMobile && visible) {
-        const changeVideoSize = (e) => {
+        const changeVideoSize = (e: React.MouseEvent) => {
             e.stopPropagation();
             const newVideoSize = isVideoSizeSmall(videoSize) ? VideoPlayerSize.BIG : VideoPlayerSize.SMALL;
             setVideoSize(newVideoSize);
@@ -316,8 +322,9 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
                     >
                         {isVideoSizeSmall(videoSize) ? 'Big' : 'Small'}
                     </a>
-                </div>
-            );}
+                </div>,
+            );
+        }
     } else if (isMobile && visible) {
         extraButtons.push(
             <div
@@ -333,11 +340,11 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
                 >
                     {'Move'}
                 </a>
-            </div>
+            </div>,
         );
     }
 
-    const clickedTimestampGen = (e) => {
+    const clickedTimestampGen = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -352,7 +359,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
 
         const timeStr = ` ${getTimestampFromSeconds(currentTime)} `;
         copyTextToClipboard(timeStr);
-    }
+    };
 
     // let timeStampButtonStyle;
     // if (isMobile) {
@@ -377,10 +384,10 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
     //     </div>
     // )
 
-    const clickedCommentsButton = (e) => {
+    const clickedCommentsButton = (e: React.MouseEvent) => {
         e.stopPropagation();
-        props.playAndShowComments({postID: props.data.postID});
-    }
+        props.playAndShowComments({postID: props.data?.postID || ''});
+    };
 
     let commentButtonStyle;
     if (isMobile) {
@@ -402,10 +409,10 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
                 onClick={clickedCommentsButton}
             >
                 {/* {'Comments'} */}
-                <i className='fa fa-comment'></i>
+                <i className='fa fa-comment'/>
             </a>
-        </div>
-    )
+        </div>,
+    );
 
     // let closeButton;
     // if (visible) {
@@ -413,10 +420,13 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
     // }
 
     return (
-        <div style={style} ref={shouldDrag ? dragRef : null}>
-            <div style={{
-                display: visible ? undefined : 'none'
-            }}>
+        <div
+            style={style}
+            ref={shouldDrag ? dragRef : null}
+        >
+            <div
+                style={visible ? {} : {display: 'none'}}
+            >
                 {content}
             </div>
             {/* <div style={closeButtonStyle}>
@@ -434,7 +444,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     e.preventDefault();
-                                    setVisible(!visible)
+                                    setVisible(!visible);
                                 }}
                             >
                                 {visible ? 'Hide' : 'Show'}
@@ -445,7 +455,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
                 </>
             )}
         </div>
-    )
+    );
 }
 
 const getStyle = (theme: Theme) => ({
@@ -453,4 +463,4 @@ const getStyle = (theme: Theme) => ({
         backgroundColor: theme.centerChannelBg,
         display: 'block',
     },
-})
+});

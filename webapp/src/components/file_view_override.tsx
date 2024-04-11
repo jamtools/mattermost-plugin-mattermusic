@@ -1,5 +1,5 @@
 import React from 'react';
-import {bindActionCreators} from 'redux';
+import {Dispatch, bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 
 import {FileInfo} from 'mattermost-redux/types/files';
@@ -21,13 +21,15 @@ import {getMimeFromFileInfo} from '../util/file_types';
 */
 
 type StateProps = {
+
     // post: Post;
     // fileID: string;
 };
 
 type DispatchProps = {
+
     // showSeekTimestamps: (fileID: string, timestamps: string[]) => void;
-    playAndShowComments: (postID: string, seekTo?: string) => void;
+    playAndShowComments: typeof playAndShowComments;
 };
 
 // type Props = StateProps & DispatchProps
@@ -42,24 +44,23 @@ export type ConnectConfig<T> = {
     dispatch(dispatch: (action: Action) => any): any;
 }
 export const config = {
-    state: (state: State, ownProps: {postId: string}) => {
-    },
-    dispatch: (dispatch) => bindActionCreators({
+    state: null,
+    dispatch: (dispatch: Dispatch) => bindActionCreators({
         playAndShowComments,
     }, dispatch),
-}
+};
 
 const FileViewOverride = connect(config.state, config.dispatch)(FileViewOverrideImpl);
 export default FileViewOverride;
 
-export const shouldDisplayFileOverride = (fileInfo: FileInfo, post: Post) => {
+export const shouldDisplayFileOverride = (fileInfo: FileInfo, _post: Post) => {
     if (!fileInfo) {
-        return false
+        return false;
     }
 
     const mime = getMimeFromFileInfo(fileInfo);
     return mime.includes('audio') || mime.includes('video');
-}
+};
 
 type Props = {
     fileInfo: FileInfo;
