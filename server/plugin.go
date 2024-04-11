@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/pkg/errors"
 )
 
@@ -30,10 +30,7 @@ func (p *Plugin) OnActivate() error {
 
 // ServeHTTP demonstrates a plugin that handles HTTP requests by greeting the world.
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
-	if true {
-		// fmt.Fprint(w, "Cuttin' it short")
-		// return
-	}
+	p.API.LogInfo("ServeHTTP called")
 	switch r.URL.Path {
 	case "/assets/iframe_api", "/assets/iframe_widget_api.js":
 		p.handleAssets(w, r)
