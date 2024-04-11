@@ -1,14 +1,9 @@
-// import {getPostThread} from 'mattermost-redux/actions/posts';
-import {GlobalState} from 'mattermost-redux/types/store';
 import {Post} from 'mattermost-redux/types/posts';
 import {DispatchFunc, GetStateFunc} from 'mattermost-redux/types/actions';
-import {getPost, getPostsInThread} from 'mattermost-redux/selectors/entities/posts';
+import {getPost} from 'mattermost-redux/selectors/entities/posts';
+import {getCurrentChannelId} from 'mattermost-redux/selectors/entities/channels';
 import {makeGetFilesForPost} from 'mattermost-redux/selectors/entities/files';
 import {FileInfo} from 'mattermost-redux/types/files';
-
-export function getRhsState(state: GlobalState): any {
-    return state.views.rhs.rhsState;
-}
 
 const ActionTypes = {
     UPDATE_RHS_SEARCH_RESULTS_TERMS: 'UPDATE_RHS_SEARCH_RESULTS_TERMS',
@@ -21,7 +16,7 @@ const ActionTypes = {
 
 const getFilesForPost = makeGetFilesForPost();
 
-type PlayAndShowCommentsArguments = {postID: string, seekTo?: string, videoID?: string, url?: string};
+export type PlayAndShowCommentsArguments = {postID: string, seekTo?: string, videoID?: string, url?: string};
 
 export function playAndShowComments({postID, seekTo, videoID, url}: PlayAndShowCommentsArguments) {
     return (dispatch: DispatchFunc, getState: GetStateFunc) => {
@@ -88,26 +83,12 @@ export function setRhsExpanded(expanded = true) {
 //     };
 // }
 
-export function updateSearchTerms(terms) {
-    return {
-        type: ActionTypes.UPDATE_RHS_SEARCH_TERMS,
-        terms,
-    };
-}
-
-function updateSearchResultsTerms(terms) {
-    return {
-        type: ActionTypes.UPDATE_RHS_SEARCH_RESULTS_TERMS,
-        terms,
-    };
-}
-
 const RHSStates = {
     PIN: 'pin',
 };
 
 export function updateRhsState(rhsState: string, channelId?: string) {
-    return (dispatch, getState) => {
+    return (dispatch: DispatchFunc, getState: GetStateFunc) => {
         const action = {
             type: ActionTypes.UPDATE_RHS_STATE,
             state: rhsState,

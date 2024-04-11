@@ -43,14 +43,14 @@ export type YoutubePlayerData = {
     videoID: string;
 } | null
 
-type SelectPostPayload = {type: string; postId: string;}
-type YoutubePlayerAction = {type: string; data?: YoutubePlayerData};
+type SelectPostPayload = {type: string; postId: string; data: undefined;}
+type YoutubePlayerAction = {type: string; data?: YoutubePlayerData; postId: undefined};
 
 function youtubePlayer(state: YoutubePlayerData = null, action: YoutubePlayerAction | SelectPostPayload) {
     switch (action.type) {
     case 'SEEK_YOUTUBE_PLAYER':
         if (state) {
-            if (state.postID !== action.data.postID) {
+            if (state.postID !== action.data?.postID) {
                 return null;
             }
         }
@@ -62,6 +62,8 @@ function youtubePlayer(state: YoutubePlayerData = null, action: YoutubePlayerAct
         if (!action.postId) {
             return null;
         }
+
+        return state;
 
         // if (!state){
         //     return null;

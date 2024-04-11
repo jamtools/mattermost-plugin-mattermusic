@@ -1,11 +1,10 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
 import {Modal} from 'react-bootstrap';
 
 import {Theme} from 'mattermost-redux/types/preferences';
 
-import {TrimModalData, State} from '../reducers';
+import {State} from '../reducers';
 
 import FormButton from './form_button';
 
@@ -20,6 +19,7 @@ type StateProps<T> = {
 
 type DispatchProps = {
     close: () => void;
+    seekGlobalPlayer: (fileID: string, seekTo: string) => void;
 };
 
 type Props<T> = StateProps<T> & DispatchProps
@@ -35,27 +35,27 @@ export type ConnectConfig<T> = {
 }
 
 function createModal<T>(config: ConnectConfig<T>) {
-    return connect(config.state, config.dispatch)(ModalImpl) as IModal<T>;
+    return connect(config.state, config.dispatch)(ModalImpl as any) as IModal<T>;
 }
 export default createModal;
 
 type OwnProps<T> = {
     header: string;
-    body: React.FunctionComponent<{data: T}>;
+    body: React.FunctionComponent<{data: T, close: () => void, seekGlobalPlayer: (fileID: string, seekTo: string) => void}>;
     footer: React.FunctionComponent<{data: T}>;
 }
 
 export type IModal<T> = React.FunctionComponent<OwnProps<T> & DefaultProps>;
 
 function ModalImpl<T>(props: Props<T> & DefaultProps & OwnProps<T>) {
-    const {open, data, theme} = props;
+    const {open, theme} = props;
     const ref = React.useRef(null);
 
     if (!open) {
         return false;
     }
 
-    const handleClose = (e) => {
+    const handleClose = (e: React.FormEvent) => {
         e.preventDefault();
         e.stopPropagation();
         props.close();

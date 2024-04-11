@@ -34,7 +34,7 @@ type TrimPayload = {
 }
 
 const FancyModal = createModal<TrimModalData>(config);
-export default function ActualExport(props: DefaultProps) {
+export default function ActualExport(outerProps: DefaultProps) {
     const InnerBody = (props: {data: TrimModalData; close: () => void}) => {
         const [startTime, setStartTime] = React.useState(0);
         const [endTime, setEndTime] = React.useState(0);
@@ -55,7 +55,7 @@ export default function ActualExport(props: DefaultProps) {
             }
         };
 
-        const submitTrim = (e) => {
+        const submitTrim = (e: React.FormEvent) => {
             e.preventDefault();
             e.stopPropagation();
 
@@ -87,8 +87,7 @@ export default function ActualExport(props: DefaultProps) {
             // }).then(r => r.text()).then(console.log);
         };
 
-        const file = props.data.files[0];
-        const blobURL = URL.createObjectURL(file);
+        const file = props.data?.files[0];
 
         React.useEffect(() => {
             if (audioRef && audioRef.current) {
@@ -106,7 +105,7 @@ export default function ActualExport(props: DefaultProps) {
             fetch('/plugins/mattermusic/projects').then((r) => r.json()).then(setProjects);
         }, []);
 
-        const clickedBoundsButton = (b: Bounds) => (e) => {
+        const clickedBoundsButton = (b: Bounds) => (e: React.MouseEvent) => {
             e.stopPropagation();
             e.preventDefault();
             setSelectedBound(b);
@@ -124,7 +123,7 @@ export default function ActualExport(props: DefaultProps) {
                     </FormButton>
                     <input
                         value={startTime}
-                        onChange={(e) => setStartTime(parseInt(e.target.value))}
+                        onChange={(e) => setStartTime(parseInt(e.target.value, 10))}
                     />
                 </div>
                 <div>
@@ -141,19 +140,26 @@ export default function ActualExport(props: DefaultProps) {
                     />
                 </div>
 
-                <audio
-                    controls={true}
-                    ref={audioRef}
-                    style={{width: '100%'}}
-                >
-                    <source
-                        src={blobURL}
-                        type={`audio/${file.name.split('.').pop()}`}
-                    />
-                </audio>
+                {file && (
+                    <audio
+                        controls={true}
+                        ref={audioRef}
+                        style={{width: '100%'}}
+                    >
+                        <source
+                            src={URL.createObjectURL(file)}
+                            type={`audio/${file.name.split('.').pop()}`}
+                        />
+                    </audio>
+                )}
                 <select>
                     {projects.map((project) => (
-                        <option value={project.ID}>{project.Name}</option>
+                        <option
+                            key={project.ID}
+                            value={project.ID}
+                        >
+                            {project.Name}
+                        </option>
                     ))}
                 </select>
                 <FormButton
@@ -163,11 +169,11 @@ export default function ActualExport(props: DefaultProps) {
                 >
                     {'Trim'}
                 </FormButton>
-            </div>
+            </div >
         );
     };
 
-    const body = (props: {data: TrimModalData}) => {
+    const Body = (props: {data: TrimModalData, close: () => void}) => {
         if (!props.data) {
             return <span>{'No data'}</span>;
         }
@@ -179,11 +185,11 @@ export default function ActualExport(props: DefaultProps) {
         return <InnerBody {...props}/>;
     };
 
-    const footer = (props: any) => (
+    const Footer = (props: any) => (
         <FormButton
             btnClass='btn btn-primary'
             saving={false}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
         >
             {'Create'}
         </FormButton>
@@ -192,9 +198,9 @@ export default function ActualExport(props: DefaultProps) {
     return (
         <FancyModal
             header={'Im the trim modal! Whats up bro!'}
-            body={body}
-            footer={footer}
-            theme={props.theme}
+            body={Body}
+            footer={Footer}
+            theme={outerProps.theme}
         />
     );
 }

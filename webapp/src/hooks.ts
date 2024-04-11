@@ -17,10 +17,14 @@ import {getPost} from 'mattermost-redux/selectors/entities/posts';
 import {Store, FileHookResponse} from './util/plugin_registry';
 import {postHasMedia} from './selectors';
 
-export default class Hooks implements IHooks {
-    constructor(private store: Store) {}
+export default class Hooks {
+    private store: Store;
 
-    filesWillUploadHook = (files: File[], upload: (files: File[]) => void): Promise<FileHookResponse> => {
+    constructor(store: Store) {
+        this.store = store;
+    }
+
+    filesWillUploadHook = (files: File[], upload: (filesToUpload: File[]) => void): FileHookResponse => {
         this.store.dispatch({
             type: 'OPEN_TRIM_MODAL',
             data: {
@@ -112,7 +116,7 @@ const makeYoutubeTimestampLink = (post: Post, timestamp: string): string => {
 };
 
 export const getYoutubeVideoID = (message: string) => {
-    const r = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\? ]*).*/;
+    const r = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#&? ]*).*/;
     const matched = message.match(r);
     if (!matched) {
         return '';
@@ -150,11 +154,11 @@ const getSecondsFromTimestamp = (timestamp: string): number => {
     const parts = timestamp.split(':');
 
     if (parts.length === 2) {
-        return (parseInt(parts[0]) * 60) + parseInt(parts[1]);
+        return (parseInt(parts[0], 10) * 60) + parseInt(parts[1], 10);
     }
 
     if (parts.length === 3) {
-        return (parseInt(parts[0]) * 60 * 60) + (parseInt(parts[1]) * 60) + parseInt(parts[2]);
+        return (parseInt(parts[0], 10) * 60 * 60) + (parseInt(parts[1], 10) * 60) + parseInt(parts[2], 10);
     }
 
     return 0;
@@ -168,7 +172,7 @@ const getCondensedTimestamp = (timestamp: string): string => {
     }
 
     if (parts.length === 3) {
-        const minutes = (parseInt(parts[0]) * 60) + parseInt(parts[1]);
+        const minutes = (parseInt(parts[0], 10) * 60) + parseInt(parts[1], 10);
         return `${minutes}:${parts[2]}`;
     }
 

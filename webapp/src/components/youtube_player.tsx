@@ -1,20 +1,16 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {useDrag, DndProvider} from 'react-dnd';
-import Backend from 'react-dnd-html5-backend';
 
 import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
 
-import {bindActionCreators} from 'redux';
+import {Dispatch, bindActionCreators} from 'redux';
 
 import {Theme} from 'mattermost-redux/types/preferences';
 
 import {State, YoutubePlayerData} from 'src/reducers';
 
-import {getMimeFromExtension, copyTextToClipboard, getTimestampFromSeconds, getSecondsFromTimestamp} from '../util/util';
+import {getSecondsFromTimestamp} from '../util/util';
 import {playAndShowComments} from '../actions';
-
-import FormButton from './form_button';
 
 type StateProps<T> = {
     show: boolean;
@@ -43,7 +39,7 @@ export const config = {
         data: p.youtubePlayer,
         theme: getTheme(state),
     }),
-    dispatch: (dispatch) => bindActionCreators({
+    dispatch: (dispatch: Dispatch) => bindActionCreators({
         close: () => ({type: 'CLOSE_YOUTUBE_PLAYER'}),
         playAndShowComments,
     }, dispatch),
@@ -144,7 +140,7 @@ export function YoutubePlayerImpl(props: Props<YoutubePlayerData>) {
 
             if (getPlayerAndInfo) {
                 const info = getPlayerAndInfo.func();
-                if (info.data.postID !== props.data.postID) {
+                if (info.data?.postID !== props.data.postID) {
                     setGetPlayer(null);
                     return;
                 }
@@ -159,11 +155,11 @@ export function YoutubePlayerImpl(props: Props<YoutubePlayerData>) {
             let lookForThumbnail = !getPlayerAndInfo;
             if (getPlayerAndInfo) {
                 const info = getPlayerAndInfo.func();
-                if (info.data.postID !== props.data.postID) {
+                if (info.data?.postID !== props.data.postID) {
                     lookForThumbnail = true;
                 } else {
-                    const info = getPlayerAndInfo.func();
-                    if (info.player.seekTo) {
+                    const info2 = getPlayerAndInfo.func();
+                    if (info2.player) {
                         return;
                     }
                 }
@@ -173,7 +169,7 @@ export function YoutubePlayerImpl(props: Props<YoutubePlayerData>) {
             if (lookForThumbnail) {
                 await new Promise((r) => setTimeout(r, 500));
                 const thumbnailSelector = '#rhsContainer .video-thumbnail__container';
-                const thumbnailElement = document.querySelector(thumbnailSelector);
+                const thumbnailElement = document.querySelector(thumbnailSelector) as HTMLDivElement | null;
                 if (thumbnailElement) {
                     console.log('FOUND THUMBNAIL');
                     thumbnailElement.click();
@@ -200,6 +196,7 @@ export function YoutubePlayerImpl(props: Props<YoutubePlayerData>) {
             }
             el.id = newID;
 
+            // eslint-disable-next-line prefer-const
             let player: Player;
             const getPlayer = {func: () => ({player, data: props.data})};
             setGetPlayer(getPlayer);
@@ -209,7 +206,7 @@ export function YoutubePlayerImpl(props: Props<YoutubePlayerData>) {
                         setGetPlayer(getPlayer);
                         console.log('WERE READY TO ROCK');
 
-                        const seconds = getSecondsFromTimestamp(props.data.seekTo);
+                        const seconds = getSecondsFromTimestamp(props.data!.seekTo);
                         if (!seconds) {
                             console.log('onReady wont seek because seekto is 0');
                             return;
@@ -230,15 +227,3 @@ export function YoutubePlayerImpl(props: Props<YoutubePlayerData>) {
         <div/>
     );
 }
-
-const getThumbnailElement = () => {
-
-};
-
-const getOriginalIFrame = () => {
-
-};
-
-const getNewIFrame = () => {
-
-};

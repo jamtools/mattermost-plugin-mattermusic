@@ -18,7 +18,7 @@ export default function SeekTooltip({href, theme, dispatch}: Props) {
     const parts = href.split('|');
     const [prefix, fileID, timestamp] = parts;
 
-    const handleClick = (e) => {
+    const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         const data = {fileID, seekTo: timestamp};

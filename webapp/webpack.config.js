@@ -102,12 +102,12 @@ const config = {
         publicPath: '/',
         filename: 'main.js',
     },
-    mode: (isDev) ? 'eval-source-map' : 'production',
+    mode: (isDev) ? 'source-map' : 'production',
     plugins,
 };
 
 if (isDev) {
-    Object.assign(config, {devtool: 'eval-source-map'});
+    Object.assign(config, {devtool: 'source-map'});
 }
 
 module.exports = config;

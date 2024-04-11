@@ -1,11 +1,11 @@
-import React from 'react';
+import React, {CSSProperties} from 'react';
 import {connect} from 'react-redux';
 import {useDrag, DndProvider} from 'react-dnd';
 import {HTML5Backend as Backend} from 'react-dnd-html5-backend';
 
 import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
 
-import {bindActionCreators} from 'redux';
+import {bindActionCreators, Dispatch} from 'redux';
 
 import {Theme} from 'mattermost-redux/types/preferences';
 
@@ -23,6 +23,7 @@ type StateProps<T> = {
 
 type DispatchProps = {
     close: () => void;
+    playAndShowComments: typeof playAndShowComments;
 };
 
 type Props<T> = StateProps<T> & DispatchProps
@@ -42,7 +43,7 @@ export const config = {
         data: p.globalPlayer,
         theme: getTheme(state),
     }),
-    dispatch: (dispatch) => bindActionCreators({
+    dispatch: (dispatch: Dispatch) => bindActionCreators({
         close: () => ({type: 'CLOSE_GLOBAL_PLAYER'}),
         playAndShowComments,
     }, dispatch),
@@ -66,7 +67,7 @@ enum MobilePlacement {
     BOTTOM,
 }
 
-const getDefaultPlacement = (mime: Mimes, videoSize?:VideoPlayerSize): any => {
+const getDefaultPlacement = (mime: string, videoSize?:VideoPlayerSize): any => {
     if (mime.includes(Mimes.AUDIO)) {
         return audioDefaultPlacement;
     }
@@ -76,17 +77,17 @@ const getDefaultPlacement = (mime: Mimes, videoSize?:VideoPlayerSize): any => {
     return videoDefaultBigPlacement;
 };
 
-const audioDefaultPlacement = {
+const audioDefaultPlacement: CSSProperties = {
     top: '2px',
     right: '195px',
 };
 
-const videoDefaultPlacement = {
+const videoDefaultPlacement: CSSProperties = {
     top: '119px',
     right: '0px',
 };
 
-const videoDefaultBigPlacement = {
+const videoDefaultBigPlacement: CSSProperties = {
     bottom: '0px',
     right: '0px',
 };
@@ -100,7 +101,7 @@ const isVideoSizeSmall = (videoSize: VideoPlayerSize) => videoSize === VideoPlay
 export type GlobalPlayerProps = Props<GlobalPlayerData>;
 
 export function GlobalPlayerImpl(props: GlobalPlayerProps) {
-    const playerRef = React.createRef<HTMLAudioElement>();
+    const playerRef = React.createRef<HTMLAudioElement | HTMLVideoElement>();
     const [fileURL, setFileURL] = React.useState('');
 
     const [placement, setPlacement] = React.useState(audioDefaultPlacement);
@@ -117,7 +118,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
             opacity: monitor.isDragging() ? 0.5 : 1,
         }),
         end: (item, monitor) => {
-            const offset = monitor.getClientOffset();
+            const offset = monitor.getClientOffset() || {x: 0, y: 0};
 
             setPlacement({
                 top: `${offset.y - 100}px`,
@@ -154,7 +155,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
 
             if (props.data.seekTo) {
                 const [minute, second] = props.data.seekTo.split(':');
-                const time = parseInt(minute) * 60 + parseInt(second);
+                const time = (parseInt(minute, 10) * 60) + parseInt(second, 10);
                 current.currentTime = time;
                 current.onloadeddata = (e) => {
                     if (playerRef.current) {
@@ -166,14 +167,14 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
     }, [props.data]);
 
     if (!props.show) {
-        return false;
+        return null;
     }
 
     if (!props.data) {
-        return false;
+        return null;
     }
 
-    let closeButtonStyle = {
+    let closeButtonStyle: CSSProperties = {
         position: 'absolute',
     };
 
@@ -188,7 +189,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
     const isVideo = mime.includes(Mimes.VIDEO);
     const isAudio = mime.includes(Mimes.AUDIO);
 
-    let style;
+    let style: CSSProperties = {};
 
     // break this out into two components. mobile and web
     if (isMobile) {
@@ -237,20 +238,21 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
         };
     }
 
-    const clickedClose = (e) => {
+    const clickedClose = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         props.close();
     };
 
-    const clickedSwitchMobilePlacement = (e) => {
+    const clickedSwitchMobilePlacement = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         switch (mobilePlacement) {
         case MobilePlacement.TOP:
-            return setMobilePlacement(MobilePlacement.BOTTOM);
+            setMobilePlacement(MobilePlacement.BOTTOM);
+            return;
         case MobilePlacement.BOTTOM:
-            return setMobilePlacement(MobilePlacement.TOP);
+            setMobilePlacement(MobilePlacement.TOP);
         }
     };
 
@@ -287,7 +289,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
                 controls={true}
 
                 // autoPlay={true}
-                ref={playerRef}
+                ref={playerRef as React.RefObject<HTMLVideoElement>}
             >
                 <source
                     src={fileURL}
@@ -299,7 +301,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
 
     const extraButtons = [];
     if (!isMobile && visible) {
-        const changeVideoSize = (e) => {
+        const changeVideoSize = (e: React.MouseEvent) => {
             e.stopPropagation();
             const newVideoSize = isVideoSizeSmall(videoSize) ? VideoPlayerSize.BIG : VideoPlayerSize.SMALL;
             setVideoSize(newVideoSize);
@@ -342,7 +344,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
         );
     }
 
-    const clickedTimestampGen = (e) => {
+    const clickedTimestampGen = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -382,9 +384,9 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
     //     </div>
     // )
 
-    const clickedCommentsButton = (e) => {
+    const clickedCommentsButton = (e: React.MouseEvent) => {
         e.stopPropagation();
-        props.playAndShowComments({postID: props.data.postID});
+        props.playAndShowComments({postID: props.data?.postID || ''});
     };
 
     let commentButtonStyle;
@@ -423,9 +425,7 @@ export function GlobalPlayerImpl(props: GlobalPlayerProps) {
             ref={shouldDrag ? dragRef : null}
         >
             <div
-                style={{
-                    display: visible ? undefined : 'none',
-                }}
+                style={visible ? {} : {display: 'none'}}
             >
                 {content}
             </div>

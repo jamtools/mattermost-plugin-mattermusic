@@ -1,5 +1,3 @@
-import {FileInfo} from 'mattermost-redux/types/files';
-
 export function parseQueryString(query: string): any {
     const vars = query.split('&');
     return vars.reduce((accum, v) => {
@@ -41,8 +39,7 @@ export function copyTextToClipboard(text: string) {
         fallbackCopyTextToClipboard(text);
         return;
     }
-    navigator.clipboard.writeText(text).then(() => {
-    }, (err) => {
+    navigator.clipboard.writeText(text).catch((err) => {
         console.error('Async: Could not copy text: ', err);
     });
 }
@@ -77,7 +74,7 @@ export function getSecondsFromTimestamp(timestamp: string): number {
     }
 
     const [minuteStr, secondsStr] = timestamp.split(':');
-    const minutes = parseInt(minuteStr);
-    const seconds = parseInt(secondsStr);
-    return minutes * 60 + seconds;
+    const minutes = parseInt(minuteStr, 10);
+    const seconds = parseInt(secondsStr, 10);
+    return (minutes * 60) + seconds;
 }

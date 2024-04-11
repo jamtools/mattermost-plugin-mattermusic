@@ -136,6 +136,7 @@
      "global-require": 2,
      "guard-for-in": 2,
      "id-blacklist": 0,
+     "import/no-named-as-default-member": "off",
      "import/no-unresolved": 2,
      "import/order": [
         "error",
@@ -219,7 +220,7 @@
      "new-parens": 2,
      "newline-before-return": 0,
      "newline-per-chained-call": 0,
-     "no-alert": 2,
+     "no-alert": "warn",
      "no-array-constructor": 2,
      "no-await-in-loop": 2,
      "no-caller": 2,
@@ -231,7 +232,7 @@
         "except-parens"
      ],
      "no-confusing-arrow": 2,
-     "no-console": 2,
+     "no-console": "warn",
      "no-const-assign": 2,
      "no-constant-condition": 2,
      "no-debugger": 2,
@@ -309,7 +310,7 @@
         }
      ],
      "no-native-reassign": 2,
-     "no-negated-condition": 2,
+     "no-negated-condition": "off",
      "no-nested-ternary": 2,
      "no-new": 2,
      "no-new-func": 2,
@@ -317,7 +318,7 @@
      "no-new-symbol": 2,
      "no-new-wrappers": 2,
      "no-octal-escape": 2,
-     "no-param-reassign": 2,
+     "no-param-reassign": "warn",
      "no-process-env": 2,
      "no-process-exit": 2,
      "no-proto": 2,
@@ -336,12 +337,7 @@
      ],
      "no-self-compare": 2,
      "no-sequences": 2,
-     "no-shadow": [
-        2,
-        {
-           "hoist": "functions"
-        }
-     ],
+     "no-shadow": "off",
      "no-shadow-restricted-names": 2,
      "no-spaced-func": 2,
      "no-tabs": 0,
@@ -375,14 +371,6 @@
         {
            "vars": "all",
            "args": "after-used"
-        }
-     ],
-     "no-use-before-define": [
-        2,
-        {
-           "classes": false,
-           "functions": false,
-           "variables": false
         }
      ],
      "no-useless-computed-key": 2,
@@ -651,6 +639,7 @@
            "@typescript-eslint/prefer-interface": 0,
            "@typescript-eslint/explicit-function-return-type": 0,
            "@typescript-eslint/explicit-module-boundary-types": 0,
+           "@typescript-eslint/no-shadow": "error",
            "@typescript-eslint/indent": [
               2,
               4,

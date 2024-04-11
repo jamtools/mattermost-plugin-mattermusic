@@ -1,5 +1,5 @@
 import React from 'react';
-import {bindActionCreators} from 'redux';
+import {Dispatch, bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 
 import {FileInfo} from 'mattermost-redux/types/files';
@@ -29,7 +29,7 @@ type StateProps = {
 type DispatchProps = {
 
     // showSeekTimestamps: (fileID: string, timestamps: string[]) => void;
-    playAndShowComments: (postID: string, seekTo?: string) => void;
+    playAndShowComments: typeof playAndShowComments;
 };
 
 // type Props = StateProps & DispatchProps
@@ -45,7 +45,7 @@ export type ConnectConfig<T> = {
 }
 export const config = {
     state: null,
-    dispatch: (dispatch) => bindActionCreators({
+    dispatch: (dispatch: Dispatch) => bindActionCreators({
         playAndShowComments,
     }, dispatch),
 };
@@ -53,8 +53,7 @@ export const config = {
 const FileViewOverride = connect(config.state, config.dispatch)(FileViewOverrideImpl);
 export default FileViewOverride;
 
-export const shouldDisplayFileOverride = (fileInfo: FileInfo, post: Post) => {
-    debugger;
+export const shouldDisplayFileOverride = (fileInfo: FileInfo, _post: Post) => {
     if (!fileInfo) {
         return false;
     }
@@ -71,7 +70,6 @@ type Props = {
 
 export function FileViewOverrideImpl(props: Props) {
     React.useEffect(() => {
-        debugger;
         if (props.fileInfo) {
             props.onModalDismissed();
             props.playAndShowComments({postID: props.post.id});
