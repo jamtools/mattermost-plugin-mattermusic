@@ -14,7 +14,7 @@ const beginning = `var scriptUrl = '`
 
 func (p *Plugin) handleAssets(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/assets/iframe_api" {
-		script, err := p.getYoutubeIframeApiScript()
+		script, err := p.getYoutubeIframeAPIScript()
 		if err != nil {
 			errMsg := errors.Wrap(err, "error getting youtube iframe script").Error()
 			http.Error(w, errMsg, http.StatusInternalServerError)
@@ -22,7 +22,7 @@ func (p *Plugin) handleAssets(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Header().Add("Content-Type", "text/javascript")
-		w.Write([]byte(script))
+		_, _ = w.Write([]byte(script))
 		return
 	}
 
@@ -35,14 +35,14 @@ func (p *Plugin) handleAssets(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Header().Add("Content-Type", "text/javascript")
-		w.Write([]byte(script))
+		_, _ = w.Write([]byte(script))
 		return
 	}
 
 	http.NotFound(w, r)
 }
 
-func (p *Plugin) getYoutubeIframeApiScript() (string, error) {
+func (p *Plugin) getYoutubeIframeAPIScript() (string, error) {
 	u := "https://www.youtube.com/iframe_api"
 	res, err := http.Get(u)
 	if err != nil {
@@ -86,7 +86,7 @@ func injectIframeScriptURL(script, siteURL string) (string, error) {
 }
 
 func getYoutubeIframeWidgetScript(u string) (string, error) {
-	res, err := http.Get(u)
+	res, err := http.Get(u) //nolint
 	if err != nil {
 		return "", errors.Wrap(err, "error fetching iframe script")
 	}
