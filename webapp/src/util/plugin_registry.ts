@@ -25,6 +25,20 @@ export interface Registry {
     registerRootComponent: (component: Component<DefaultProps>) => void;
     registerPostDropdownMenuComponent: (component: Component<PostDropdownMenuComponentProps>) => void;
     registerFilePreviewComponent: (override: (fileInfo: FileInfo, post: Post) => boolean, component: Component<FilePreviewOverrideProps>) => string;
+
+    registerProduct(options: {
+        baseURL: string;
+        switcherIcon: string;
+        switcherText: string;
+        switcherLinkURL: string;
+        mainComponent: React.ElementType;
+        headerCentreComponent: React.ElementType;
+        headerRightComponent: React.ElementType;
+        showTeamSidebar: boolean;
+        showAppBar?: boolean;
+        wrapped?: boolean;
+        publicComponent?: React.ElementType;
+    }): string;
 }
 
 export interface Store {

@@ -1,28 +1,49 @@
-var path = require('path');
+const exec = require('child_process').exec;
+
+const path = require('path');
+
+const PLUGIN_ID = require('../plugin.json').id;
 
 const NPM_TARGET = process.env.npm_lifecycle_event; //eslint-disable-line no-process-env
+const isDev = true;
+// const isDev = NPM_TARGET === 'debug' || NPM_TARGET === 'debug:watch';
 
-var DEV = false;
-if (NPM_TARGET === 'run') {
-    DEV = true;
+const plugins = [];
+if (NPM_TARGET === 'build:watch' || NPM_TARGET === 'debug:watch') {
+    plugins.push({
+        apply: (compiler) => {
+            compiler.hooks.watchRun.tap('WatchStartPlugin', () => {
+                // eslint-disable-next-line no-console
+                console.log('Change detected. Rebuilding webapp.');
+            });
+            compiler.hooks.afterEmit.tap('AfterEmitPlugin', () => {
+                exec('cd .. && make deploy-from-watch', (err, stdout, stderr) => {
+                    if (stdout) {
+                        process.stdout.write(stdout);
+                    }
+                    if (stderr) {
+                        process.stderr.write(stderr);
+                    }
+                });
+            });
+        },
+    });
 }
-
-const bundleName = 'mattermusic_00a9f383c1e57ad9_bundle.js';
 
 const config = {
     entry: [
-        './src/index.js',
+        './src/index.tsx',
     ],
     resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'src'),
+        },
         modules: [
             'src',
             'node_modules',
+            path.resolve(__dirname),
         ],
         extensions: ['*', '.js', '.jsx', '.ts', '.tsx'],
-    },
-    devtool: 'source-map',
-    watchOptions: {
-        poll: true,
     },
     module: {
         rules: [
@@ -38,27 +59,20 @@ const config = {
                     },
                 },
             },
-            // {
-            //     test: /\.scss$/,
-            //     use: [
-            //         'style-loader',
-            //         {
-            //             loader: 'css-loader',
-            //         },
-            //         {
-            //             loader: 'sass-loader',
-            //             options: {
-            //                 includePaths: ['node_modules/compass-mixins/lib', 'sass'],
-            //             },
-            //         },
-            //     ],
-            // },
             {
-                test: /\.css$/,
+                test: /\.(scss|css)$/,
                 use: [
                     'style-loader',
                     {
                         loader: 'css-loader',
+                    },
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            sassOptions: {
+                                includePaths: ['node_modules/compass-mixins/lib', 'sass'],
+                            },
+                        },
                     },
                 ],
             },
@@ -66,30 +80,25 @@ const config = {
     },
     externals: {
         react: 'React',
+        'react-dom': 'ReactDOM',
         redux: 'Redux',
         'react-redux': 'ReactRedux',
         'prop-types': 'PropTypes',
         'react-bootstrap': 'ReactBootstrap',
+        'react-router-dom': 'ReactRouterDom',
     },
     output: {
-        devtoolModuleFilenameTemplate: 'webpack://[namespace]/[resource-path]?[loaders]',
-        devtoolNamespace: 'mattermusic',
+        devtoolNamespace: PLUGIN_ID,
         path: path.join(__dirname, '/dist'),
         publicPath: '/',
-        filename: DEV ? bundleName : 'main.js',
-        sourceMapFilename: 'main.js.map',
+        filename: 'main.js',
     },
-    optimization: {
-        // minimize: false,
-        minimize: !DEV,
-    },
+    mode: (isDev) ? 'source-map' : 'production',
+    plugins,
 };
 
-config.mode = 'production';
-
-if (DEV) {
-    // Development mode configuration
-    config.mode = 'development';
+if (isDev) {
+    Object.assign(config, {devtool: 'source-map'});
 }
 
 module.exports = config;
