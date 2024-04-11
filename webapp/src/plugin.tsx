@@ -42,6 +42,34 @@ export default class Plugin {
             }
         }
 
+        registry.registerProduct({
+            baseURL: '/studio',
+            switcherIcon: 'microphone-outline',
+            switcherText: 'Studio',
+            switcherLinkURL: '/studio',
+            mainComponent: () => (
+                <div style={{
+                    background: 'var(--center-channel-bg)',
+                    color: 'var(--center-channel-color)',
+                    // width: '100%',
+                    height: '100%',
+                    overflowY: 'auto',
+                }}>
+                    <h1 style={{textAlign: 'center'}}>
+                        Oh yeah
+                    </h1>
+                </div>
+            ),
+            headerCentreComponent: () => (
+                null
+            ),
+            headerRightComponent: () => (
+                null
+            ),
+            showTeamSidebar: true,
+            showAppBar: true,
+        });
+
         const hooks = new Hooks(store);
         // registry.registerFilesWillUploadHook(hooks.filesWillUploadHook);
         registry.registerMessageWillFormatHook(hooks.messageWillFormatHook)
